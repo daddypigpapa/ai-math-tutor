@@ -1,0 +1,65 @@
+{
+  "id": "m3-poly-f05",
+  "unit": "m3-poly",
+  "source": "ai",
+  "seq": 17,
+  "difficulty": 3,
+  "status": "verified",
+  "status_reason": "",
+  "prompt_version": "generate_v2",
+  "question": "다음 식을 인수분해하시오. $3x^2+10x-8$",
+  "answer_form": "factored",
+  "original_sympy": "3*x**2+10*x-8",
+  "hint": "x의 계수 3과 상수항 −8의 곱 −24를 이용해서, 가운데 항 10x를 합이 10이 되는 두 항으로 나누어 봐.",
+  "intent": "x²의 계수가 1이 아닌 이차식을 가운데 항 분리와 공통인수 묶기로 인수분해할 수 있는지 확인한다.",
+  "steps": [
+    {
+      "no": 1,
+      "text": "3x² + 12x − 2x − 8",
+      "sympy": "3*x**2+12*x-2*x-8"
+    },
+    {
+      "no": 2,
+      "text": "3x(x + 4) − 2(x + 4)",
+      "sympy": "3*x*(x+4)-2*(x+4)"
+    },
+    {
+      "no": 3,
+      "text": "(3x − 2)(x + 4)",
+      "sympy": "(3*x-2)*(x+4)"
+    }
+  ],
+  "answer": "(x + 4)(3x - 2)",
+  "answer_sympy": "(x + 4)*(3*x - 2)",
+  "choices": [
+    {
+      "value": "(x + 4)(3x - 2)",
+      "correct": true
+    },
+    {
+      "value": "(3x + 2)(x - 4)",
+      "correct": false,
+      "error_type": "FACTOR_SIGN",
+      "error_step": 3,
+      "wrong_step_sympy": "(3*x+2)*(x-4)",
+      "feedback": "곱해서 −8이 되는 수들은 맞게 찾았는데 각 인수의 상수항 부호가 서로 바뀐 것 같아. 다시 전개해서 가운데 항이 10x가 되는지 확인해 볼래?"
+    },
+    {
+      "value": "3x(x + 4) - 2(x + 4)",
+      "correct": false,
+      "error_type": "FACTOR_INCOMPLETE",
+      "error_step": 2,
+      "wrong_step_sympy": "3*x*(x+4)-2*(x+4)",
+      "feedback": "두 항으로 묶는 데까지는 잘했어. 그런데 두 항에 똑같이 들어 있는 괄호를 한 번 더 묶어야 곱의 꼴이 되지 않을까?"
+    },
+    {
+      "value": "3x(x + 4) - 2(x - 4)",
+      "correct": false,
+      "error_type": "FACTOR_COMMON",
+      "error_step": 2,
+      "wrong_step_sympy": "3*x*(x+4)-2*(x-4)",
+      "feedback": "뒤쪽 두 항 −2x − 8을 −2로 묶을 때 괄호 안이 앞쪽 괄호와 같아지지 않았어. −2로 묶으면 각 항을 −2로 나눈 값이 나와야 해. 다시 확인해 볼래?"
+    }
+  ],
+  "repair_tries": 1
+}

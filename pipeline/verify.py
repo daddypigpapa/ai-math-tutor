@@ -8,11 +8,13 @@ import re
 from collections import defaultdict
 
 import sympy as sp
-from sympy.parsing.sympy_parser import convert_xor, parse_expr, standard_transformations
+from sympy.parsing.sympy_parser import (convert_xor, implicit_multiplication_application, parse_expr,
+                                        standard_transformations)
 
 from app import taxonomy
 
 TRANS = standard_transformations + (convert_xor,)
+TRANS_IMPLICIT = TRANS + (implicit_multiplication_application,)   # 2x, (x-5)(x+3) 처럼 곱셈 기호가 없는 표기
 _LOCAL = {c: sp.Symbol(c) for c in "abcdefghijklmnopqrstuvwxyz"}
 _ALLOWED_WORDS = {"sqrt", "abs", "pi"}
 _UNI = str.maketrans({"−": "-", "–": "-", "×": "*", "·": "*", "⋅": "*", "÷": "/", "²": "**2", "³": "**3"})
@@ -35,10 +37,11 @@ def _clean(s: str) -> str:
     return s
 
 
-def parse(s: str, evaluate: bool = True) -> sp.Expr:
+def parse(s: str, evaluate: bool = True, implicit: bool = False) -> sp.Expr:
     s = _clean(s)
     try:
-        return parse_expr(s, local_dict=dict(_LOCAL), transformations=TRANS, evaluate=evaluate)
+        return parse_expr(s, local_dict=dict(_LOCAL), transformations=TRANS_IMPLICIT if implicit else TRANS,
+                          evaluate=evaluate)
     except Exception as e:  # sympy 구문 오류는 종류가 다양하다
         raise ParseError(f"{s!r}: {type(e).__name__}") from e
 
@@ -70,6 +73,21 @@ def canon(e) -> tuple:
     return (coef[0], frozenset(bag.items()))
 
 
+def flipped_sign_form(expr):
+    """각 인수의 상수항 부호만 뒤집은 꼴의 canon (FACTOR_SIGN 검사용). 한 문자 다항식이 아니면 None."""
+    if len(expr.free_symbols) != 1:
+        return None
+    x = next(iter(expr.free_symbols))
+    coef, items = canon(expr)
+    out = {}
+    for base, e in items:
+        if not base.is_polynomial(x):
+            return None
+        flipped = sp.expand(base.subs(x, -x) * (-1) ** sp.degree(base, x))
+        out[flipped] = out.get(flipped, 0) + e
+    return (coef, frozenset(out.items()))
+
+
 def same_form(a_str: str, b_expr) -> bool:
     """a_str(evaluate=False 로 파싱)의 꼴이 b_expr 의 꼴과 같은가."""
     return canon(parse(a_str, evaluate=False)) == canon(b_expr)
@@ -80,8 +98,8 @@ def same_form(a_str: str, b_expr) -> bool:
 def norm_display(s: str) -> str:
     """정답·오답 value 를 같은 규칙으로 정리한다 (서식 차이가 정답 단서가 되지 않게)."""
     s = str(s).translate(_UNI).replace(" ", "").replace("**", "^")
-    s = re.sub(r"(?<![\d.])\*|\*(?![\d.])", "", s)          # 숫자·숫자 곱이 아닌 * 는 생략
-    s = re.sub(r"(?<=[\d.])\*(?=[\d.])", "\\\\cdot ", s)    # 숫자 * 숫자
+    s = re.sub(r"\*(?=[\d.])", r"\\cdot ", s)                # 뒤가 숫자인 곱은 · 로 표시: (x+1)*2 → (x+1)\cdot 2
+    s = s.replace("*", "")                                   # 나머지 곱셈 기호는 생략: 2*x → 2x
     s = re.sub(r"(?<=[0-9a-z)])([+\-])", r" \1 ", s)
     return s.strip()
 
@@ -223,6 +241,14 @@ def build_problem(meta: dict, out: dict) -> tuple[dict, list[dict]]:
             issues.append(issue("sympy_parse_error", f"{fld}.wrong_step_sympy", "", e))
             values.append(None)
             continue
+        if form == "factored" and d.get("error_type") == "FACTOR_INCOMPLETE" and not _equal(parse(w), e0):
+            # 덜 인수분해한 꼴은 값이 원래 식과 같아야 한다 (값이 다르면 다른 종류의 실수다)
+            issues.append(issue("error_type_mismatch", f"{fld}.error_type", "FACTOR_INCOMPLETE 는 원래 식과 값이 같아야 함", text))
+        if form == "factored" and d.get("error_type") == "FACTOR_SIGN":
+            flip = flipped_sign_form(ans)
+            if flip is not None and canon(parse(w, evaluate=False)) != flip:
+                issues.append(issue("error_type_mismatch", f"{fld}.error_type",
+                                    "FACTOR_SIGN 은 올바른 인수에서 각 인수의 상수항 부호만 반대로 쓴 꼴이어야 함", text))
         if is_ans:
             issues.append(issue("distractor_equals_answer", f"{fld}.wrong_step_sympy", f"≠ {ans_text}", text))
         elif dup:

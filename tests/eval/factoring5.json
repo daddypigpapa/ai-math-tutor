@@ -1,0 +1,7 @@
+[
+  {"id": "m3-poly-f01", "kind": "공통인수", "question": "다음 식을 인수분해하시오. $6x^2y-9xy^2$", "latex": "6x^2y-9xy^2", "sympy": "6*x**2*y-9*x*y**2", "difficulty": 1},
+  {"id": "m3-poly-f02", "kind": "완전제곱식", "question": "다음 식을 인수분해하시오. $4x^2+20x+25$", "latex": "4x^2+20x+25", "sympy": "4*x**2+20*x+25", "difficulty": 2},
+  {"id": "m3-poly-f03", "kind": "합차공식", "question": "다음 식을 인수분해하시오. $25x^2-49$", "latex": "25x^2-49", "sympy": "25*x**2-49", "difficulty": 2},
+  {"id": "m3-poly-f04", "kind": "x² 계수 1인 이차삼항식", "question": "다음 식을 인수분해하시오. $x^2-x-56$", "latex": "x^2-x-56", "sympy": "x**2-x-56", "difficulty": 2},
+  {"id": "m3-poly-f05", "kind": "x² 계수가 1이 아닌 이차삼항식", "question": "다음 식을 인수분해하시오. $3x^2+10x-8$", "latex": "3x^2+10x-8", "sympy": "3*x**2+10*x-8", "difficulty": 3}
+]

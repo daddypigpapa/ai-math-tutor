@@ -1,0 +1,60 @@
+{
+  "id": "m3-poly-f02",
+  "unit": "m3-poly",
+  "source": "ai",
+  "seq": 14,
+  "difficulty": 2,
+  "status": "verified",
+  "status_reason": "",
+  "prompt_version": "generate_v2",
+  "question": "다음 식을 인수분해하시오. $4x^2+20x+25$",
+  "answer_form": "factored",
+  "original_sympy": "4*x**2+20*x+25",
+  "hint": "첫째 항과 마지막 항이 각각 어떤 식의 제곱인지 살펴보고, 가운데 항이 완전제곱식의 꼴과 맞는지 확인해 봐.",
+  "intent": "완전제곱식 a²+2ab+b²=(a+b)² 꼴을 알아보고, 계수가 1이 아닌 이차식을 올바르게 인수분해하는지 확인한다.",
+  "steps": [
+    {
+      "no": 1,
+      "text": "4x² = (2x)², 25 = 5², 20x = 2·2x·5",
+      "sympy": "(2*x)**2+2*(2*x)*5+5**2"
+    },
+    {
+      "no": 2,
+      "text": "(2x+5)²",
+      "sympy": "(2*x+5)**2"
+    }
+  ],
+  "answer": "(2x + 5)^2",
+  "answer_sympy": "(2*x + 5)**2",
+  "choices": [
+    {
+      "value": "(2x + 5)^2",
+      "correct": true
+    },
+    {
+      "value": "(2x - 5)^2",
+      "correct": false,
+      "error_type": "FACTOR_SIGN",
+      "error_step": 2,
+      "wrong_step_sympy": "(2*x-5)**2",
+      "feedback": "2x와 5를 제곱수로 본 것은 맞아. 그런데 괄호 안 부호가 가운데 항 +20x와 맞는지 다시 확인해 볼래?"
+    },
+    {
+      "value": "(2x + 5)(2x - 5)",
+      "correct": false,
+      "error_type": "DIFF_SQUARES",
+      "error_step": 2,
+      "wrong_step_sympy": "(2*x+5)*(2*x-5)",
+      "feedback": "합차공식처럼 (a+b)(a−b)로 묶었어. 이 식은 가운데 항이 있는데, 그 항이 어디서 생기는지 생각해 볼래?"
+    },
+    {
+      "value": "(4x + 5)(x + 5)",
+      "correct": false,
+      "error_type": "FACTOR_COMMON",
+      "error_step": 2,
+      "wrong_step_sympy": "(4*x+5)*(x+5)",
+      "feedback": "곱해서 4x²과 25가 되게 맞춘 것 같은데 전개해 보면 가운데 항이 달라져. 같은 식을 두 번 곱하는 꼴인지 다시 살펴봐."
+    }
+  ],
+  "repair_tries": 0
+}

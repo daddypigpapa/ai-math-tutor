@@ -42,7 +42,7 @@ provider = "claude"
 model = "claude-sonnet-5-5"
 max_tokens = 8000
 effort = "medium"
-prompt = "generate_v1"
+prompt = "generate_v2"
 
 [tasks.repair]             # 검증 실패 항목 부분 수정
 provider = "claude"
@@ -85,13 +85,14 @@ prompt = "report_v1"
 [tasks.judge_generate]     # 평가: 생성 오답의 타당성 채점 (생성 모델과 다른 모델)
 provider = "gemini"
 model = "gemini-2.5-flash"
-max_tokens = 600
+max_tokens = 2000
+thinking_budget = 0        # 채점은 짧은 JSON 이라 사고 토큰을 쓰지 않는다(쓰면 응답이 잘림)
 prompt = "judge_generate_v1"
 
 [tasks.judge_coach]        # 평가: 코칭이 틀린 단계를 맞게 짚었는지 채점
 provider = "claude"
 model = "claude-haiku-5-5"
-max_tokens = 600
+max_tokens = 2000
 prompt = "judge_coach_v1"
 
 # 단가 (USD / 100만 토큰). 값은 예시다 — 실제 요금표를 확인해 고칠 것.

@@ -141,3 +141,27 @@ def test_norm_display_is_uniform():
 def test_problem_json_is_serializable():
     p, _ = _build(_item("m3-poly-s05"))
     assert json.loads(json.dumps(p, ensure_ascii=False))["status"] == "verified"
+
+
+def test_factor_incomplete_must_keep_the_original_value():
+    def m(out):
+        out["distractors"][0]["wrong_step_sympy"] = "2*(x+2)*(x+6)"      # 덜 인수분해한 꼴이 아니라 값이 다른 오답
+    _, issues = _build(_item("m3-poly-s10"), m)
+    assert "error_type_mismatch" in codes(issues)
+
+
+def test_factor_sign_must_be_a_sign_flip():
+    def bad(out):
+        out["distractors"][0]["wrong_step_sympy"] = "(x+5)*(x+3)"            # 부호 반대가 아니라 다른 오답
+    _, issues = _build(_item("m3-poly-s08"), bad)
+    assert "error_type_mismatch" in codes(issues)
+
+    def good(out):
+        out["distractors"][0]["wrong_step_sympy"] = "(x+5)*(x-3)"            # (x-5)(x+3) 의 상수항 부호만 반대
+    _, issues = _build(_item("m3-poly-s08"), good)
+    assert not issues
+
+
+def test_norm_display_keeps_trailing_number_product_readable():
+    assert verify.norm_display("(2*x+5)*(2*x+5)*2") == "(2x + 5)(2x + 5)\cdot 2"
+    assert verify.norm_display("2*3") == "2\cdot 3"

@@ -1,0 +1,60 @@
+{
+  "id": "m3-poly-f01",
+  "unit": "m3-poly",
+  "source": "ai",
+  "seq": 13,
+  "difficulty": 1,
+  "status": "verified",
+  "status_reason": "",
+  "prompt_version": "generate_v2",
+  "question": "다음 식을 인수분해하시오. $6x^2y-9xy^2$",
+  "answer_form": "factored",
+  "original_sympy": "6*x**2*y-9*x*y**2",
+  "hint": "두 항에 공통으로 들어 있는 수와 문자를 모두 찾아 먼저 묶어 봐.",
+  "intent": "계수의 최대공약수와 문자의 공통인수를 모두 찾아 묶어 내는 인수분해를 할 수 있는지 확인한다.",
+  "steps": [
+    {
+      "no": 1,
+      "text": "6x²y − 9xy² = 3·2·x·x·y − 3·3·x·y·y",
+      "sympy": "3*2*x*x*y-3*3*x*y*y"
+    },
+    {
+      "no": 2,
+      "text": "공통인수 3xy로 묶기: 3xy(2x − 3y)",
+      "sympy": "3*x*y*(2*x-3*y)"
+    }
+  ],
+  "answer": "3xy(2x - 3y)",
+  "answer_sympy": "3*x*y*(2*x - 3*y)",
+  "choices": [
+    {
+      "value": "3xy(2x - 3y)",
+      "correct": true
+    },
+    {
+      "value": "3(2x^2y - 3xy^2)",
+      "correct": false,
+      "error_type": "FACTOR_COMMON",
+      "error_step": 2,
+      "wrong_step_sympy": "3*(2*x**2*y-3*x*y**2)",
+      "feedback": "수 3은 잘 묶었는데 문자의 공통인수는 남겨 뒀어. 두 항에 똑같이 들어 있는 x와 y도 묶을 수 있지 않을까?"
+    },
+    {
+      "value": "xy(6x - 9y)",
+      "correct": false,
+      "error_type": "FACTOR_INCOMPLETE",
+      "error_step": 2,
+      "wrong_step_sympy": "x*y*(6*x-9*y)",
+      "feedback": "문자는 잘 묶었지만 괄호 안의 6과 9에 아직 공약수가 남아 있어. 괄호 안을 더 묶을 수 있는지 다시 찾아볼래?"
+    },
+    {
+      "value": "3xy(2x + 3y)",
+      "correct": false,
+      "error_type": "FACTOR_SIGN",
+      "error_step": 2,
+      "wrong_step_sympy": "3*x*y*(2*x+3*y)",
+      "feedback": "공통인수는 잘 찾았어. 그런데 괄호 안의 부호가 원래 식과 달라진 것 같아. 다시 전개해서 확인해 볼래?"
+    }
+  ],
+  "repair_tries": 1
+}

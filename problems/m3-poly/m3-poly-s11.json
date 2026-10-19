@@ -1,0 +1,59 @@
+{
+  "id": "m3-poly-s11",
+  "unit": "m3-poly",
+  "source": "ai",
+  "seq": 11,
+  "difficulty": 2,
+  "status": "verified",
+  "status_reason": "",
+  "prompt_version": "seed-v1",
+  "question": "다음 식을 인수분해하시오. $x^2-10x+25$",
+  "answer_form": "factored",
+  "original_sympy": "x**2-10*x+25",
+  "hint": "끝항 25는 어떤 수의 제곱일까? 가운데 항과 비교해 보자.",
+  "intent": "완전제곱식 a²−2ab+b² = (a−b)² 꼴을 알아보는지 확인한다.",
+  "steps": [
+    {
+      "no": 1,
+      "text": "x² − 2·x·5 + 5²",
+      "sympy": "x**2 - 2*x*5 + 5**2"
+    },
+    {
+      "no": 2,
+      "text": "(x − 5)²",
+      "sympy": "(x-5)**2"
+    }
+  ],
+  "answer": "(x - 5)^2",
+  "answer_sympy": "(x - 5)**2",
+  "choices": [
+    {
+      "value": "(x - 5)^2",
+      "correct": true
+    },
+    {
+      "value": "(x + 5)^2",
+      "correct": false,
+      "error_type": "FACTOR_SIGN",
+      "error_step": 2,
+      "wrong_step_sympy": "(x+5)**2",
+      "feedback": "가운데 항이 마이너스니까 괄호 안의 부호도 마이너스여야 하지 않을까? 부호를 다시 봐."
+    },
+    {
+      "value": "(x - 5)(x + 5)",
+      "correct": false,
+      "error_type": "DIFF_SQUARES",
+      "error_step": 2,
+      "wrong_step_sympy": "(x-5)*(x+5)",
+      "feedback": "합차공식과 완전제곱식을 헷갈렸어. 이 식에 가운데 항이 있는지 보고 어떤 꼴인지 다시 판단해 봐."
+    },
+    {
+      "value": "(x - 10)^2",
+      "correct": false,
+      "error_type": "SQUARE_FORMULA",
+      "error_step": 2,
+      "wrong_step_sympy": "(x-10)**2",
+      "feedback": "가운데 항의 계수를 그대로 괄호에 넣었어. 가운데 항은 2ab니까 b는 얼마일까?"
+    }
+  ]
+}

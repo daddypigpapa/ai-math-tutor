@@ -58,7 +58,7 @@ const math = (text, tag = "span", cls = "") => setMath(h(tag, { class: cls }), t
 const App = typeof document !== "undefined" && document.getElementById("app");
 const S = { learner: null, learnerName: "", unit: null, mode: "normal", aid: null, goal: null };
 
-function show(...nodes) { App.textContent = ""; App.append(...nodes); window.scrollTo(0, 0); }
+function show(...nodes) { App.textContent = ""; App.append(...nodes.filter(Boolean)); window.scrollTo(0, 0); }
 function fail(e) { show(h("div", { class: "card bad" }, "문제가 생겼어: " + e.message, h("button", { class: "btn primary", onclick: pickScreen }, "처음으로"))); }
 
 async function pickScreen() {

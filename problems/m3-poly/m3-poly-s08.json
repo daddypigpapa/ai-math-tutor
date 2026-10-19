@@ -1,0 +1,59 @@
+{
+  "id": "m3-poly-s08",
+  "unit": "m3-poly",
+  "source": "ai",
+  "seq": 8,
+  "difficulty": 1,
+  "status": "verified",
+  "status_reason": "",
+  "prompt_version": "seed-v1",
+  "question": "다음 식을 인수분해하시오. $x^2-2x-15$",
+  "answer_form": "factored",
+  "original_sympy": "x**2-2*x-15",
+  "hint": "곱해서 −15, 더해서 −2가 되는 두 수를 찾아보자.",
+  "intent": "x²+(a+b)x+ab = (x+a)(x+b) 꼴로 인수분해하는지 확인한다.",
+  "steps": [
+    {
+      "no": 1,
+      "text": "x² + (−5 + 3)x + (−5)·3",
+      "sympy": "x**2 + (-5+3)*x + (-5)*3"
+    },
+    {
+      "no": 2,
+      "text": "(x − 5)(x + 3)",
+      "sympy": "(x-5)*(x+3)"
+    }
+  ],
+  "answer": "(x - 5)(x + 3)",
+  "answer_sympy": "(x - 5)*(x + 3)",
+  "choices": [
+    {
+      "value": "(x - 5)(x + 3)",
+      "correct": true
+    },
+    {
+      "value": "(x - 3)(x + 5)",
+      "correct": false,
+      "error_type": "FACTOR_SIGN",
+      "error_step": 2,
+      "wrong_step_sympy": "(x-3)*(x+5)",
+      "feedback": "곱이 −15가 되는 두 수는 찾았는데 부호가 서로 바뀐 것 같아. 두 수를 더하면 −2가 되는지 확인해 봐."
+    },
+    {
+      "value": "(x + 5)(x + 3)",
+      "correct": false,
+      "error_type": "SIGN",
+      "error_step": 2,
+      "wrong_step_sympy": "(x+5)*(x+3)",
+      "feedback": "두 수의 부호를 다시 봐. 곱이 음수가 되려면 두 수의 부호가 어떻게 되어야 할까?"
+    },
+    {
+      "value": "(x - 5)(x - 3)",
+      "correct": false,
+      "error_type": "COEF_COMBINE",
+      "error_step": 2,
+      "wrong_step_sympy": "(x-5)*(x-3)",
+      "feedback": "고른 두 수의 합이 −2가 되는지 계산해 봐. 곱도 −15가 되는지 같이 확인해 보자."
+    }
+  ]
+}

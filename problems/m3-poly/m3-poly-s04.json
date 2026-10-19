@@ -1,0 +1,64 @@
+{
+  "id": "m3-poly-s04",
+  "unit": "m3-poly",
+  "source": "ai",
+  "seq": 4,
+  "difficulty": 2,
+  "status": "verified",
+  "status_reason": "",
+  "prompt_version": "seed-v1",
+  "question": "다음 식을 전개하시오. $(2x+1)(x+4)$",
+  "answer_form": "expanded",
+  "original_sympy": "(2*x+1)*(x+4)",
+  "hint": "2x와 1을 각각 (x+4)에 곱해 보자.",
+  "intent": "계수가 있는 두 일차식의 곱을 빠짐없이 전개하고 동류항을 합치는지 확인한다.",
+  "steps": [
+    {
+      "no": 1,
+      "text": "2x·x + 2x·4 + 1·x + 1·4",
+      "sympy": "2*x*x + 2*x*4 + 1*x + 1*4"
+    },
+    {
+      "no": 2,
+      "text": "2x² + 8x + x + 4",
+      "sympy": "2*x**2 + 8*x + x + 4"
+    },
+    {
+      "no": 3,
+      "text": "2x² + 9x + 4",
+      "sympy": "2*x**2 + 9*x + 4"
+    }
+  ],
+  "answer": "2x^2 + 9x + 4",
+  "answer_sympy": "2*x**2 + 9*x + 4",
+  "choices": [
+    {
+      "value": "2x^2 + 9x + 4",
+      "correct": true
+    },
+    {
+      "value": "2x^2 + x + 4",
+      "correct": false,
+      "error_type": "EXPAND_MISSING_TERM",
+      "error_step": 1,
+      "wrong_step_sympy": "2*x*x + 1*x + 1*4",
+      "feedback": "곱셈이 네 번 나와야 하는데 2x×4가 빠졌어. 앞 괄호의 2x가 뒤 괄호의 두 항과 모두 곱해졌는지 확인해 봐."
+    },
+    {
+      "value": "2x^2 + 9x - 4",
+      "correct": false,
+      "error_type": "SIGN",
+      "error_step": 1,
+      "wrong_step_sympy": "2*x*x + 2*x*4 + 1*x - 1*4",
+      "feedback": "마지막 곱 1×4의 부호를 다시 봐. 양수끼리 곱하면 부호가 어떻게 될까?"
+    },
+    {
+      "value": "2x^2 + 8x + 4",
+      "correct": false,
+      "error_type": "COEF_COMBINE",
+      "error_step": 3,
+      "wrong_step_sympy": "2*x**2 + 8*x + 4",
+      "feedback": "동류항을 합칠 때 x의 계수를 잊은 것 같아. x는 1x로 볼 수 있어. 계수끼리 더하면 얼마일까?"
+    }
+  ]
+}

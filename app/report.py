@@ -151,7 +151,7 @@ def send_discord(body: str) -> tuple[bool, str]:
         return False, "DISCORD_WEBHOOK_URL 없음"
     try:
         for i in range(0, len(body), 1900):
-            r = httpx.post(url, json={"content": body[i:i + 1900]}, timeout=15)
+            r = httpx.post(url, json={"content": body[i:i + 1900]}, timeout=15, verify=llm.SSL_CONTEXT)
             if r.status_code >= 300:
                 return False, f"HTTP {r.status_code}"
         return True, ""

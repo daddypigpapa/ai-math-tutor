@@ -139,3 +139,20 @@ def test_rating_saved(seeded, learner, fake):
     out = learn.answer(seeded, aid, wrong)
     learn.rate_call(seeded, out["ai_call_id"], 1)
     assert seeded.execute("SELECT helpful FROM ai_calls WHERE id=?", (out["ai_call_id"],)).fetchone()["helpful"] == 1
+
+
+def test_step_values_leak_is_rejected():
+    """틀린 단계 앞 계산단계에 정답으로 가는 값이 있어도(명세 8절) 코칭이 그 값을 옮겨 말하면 탈락."""
+    p = {"question": "x^2-x-56 인수분해", "steps": [
+        {"no": 1, "text": "곱이 −56이고 합이 −1인 두 수를 찾는다: 7과 −8"}, {"no": 2, "text": "(x + 7)(x − 8)"}]}
+    chosen = {"value": "(x - 6)(x + 9)", "error_step": 2, "feedback": "부호를 확인해 봐."}
+    assert coach._step_leak("두 수를 7이랑 −8로 찾은 건 잘했어. 합을 다시 확인해 볼까?", p, chosen) == "leak_step"
+    assert coach._step_leak("먼저 곱이 −56이고 합이 −1인 두 수를 찾는다: 7과 −8 이렇게 했지?", p, chosen) == "leak_step"   # 단계 문장 베낌
+    assert coach._step_leak("곱이 −56인 두 수를 다시 찾아서 합이 −1인지 확인해 볼래?", p, chosen) is None
+
+
+def test_backticks_are_stripped_not_rejected(seeded, learner, fake):
+    fake.handlers["coach"] = lambda s, u, kw: ok("`x`를 곱하는 부분을 다시 확인해 볼래?")
+    aid, p, wrong = _attempt(seeded, learner)
+    out = learn.answer(seeded, aid, wrong)
+    assert out["coaching"]["source"] == "ai" and "`" not in out["coaching"]["text"]

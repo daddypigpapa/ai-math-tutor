@@ -8,9 +8,17 @@ import json
 import time
 from dataclasses import dataclass
 
+import ssl
+
 import httpx
 
 from . import config, db
+
+try:   # Windows 인증서 저장소를 쓴다 (사내 프록시·보안 프로그램이 낀 PC에서 self-signed 체인 오류 방지)
+    import truststore
+    SSL_CONTEXT = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+except Exception:
+    SSL_CONTEXT = True
 
 ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
 ANTHROPIC_VERSION = "2023-06-01"
@@ -49,7 +57,7 @@ def _claude(t: dict, system: str, user: str, schema: dict | None, timeout: float
     if oc:
         body["output_config"] = oc
     r = httpx.post(
-        ANTHROPIC_URL, json=body, timeout=timeout,
+        ANTHROPIC_URL, json=body, timeout=timeout, verify=SSL_CONTEXT,
         headers={"x-api-key": key, "anthropic-version": ANTHROPIC_VERSION, "content-type": "application/json"},
     )
     if r.status_code >= 400:
@@ -73,7 +81,7 @@ def _gemini(t: dict, system: str, user: str, schema: dict | None, timeout: float
         "generationConfig": gen,
     }
     r = httpx.post(
-        GEMINI_URL.format(model=t["model"]), json=body, timeout=timeout,
+        GEMINI_URL.format(model=t["model"]), json=body, timeout=timeout, verify=SSL_CONTEXT,
         headers={"x-goog-api-key": key, "content-type": "application/json"},
     )
     if r.status_code >= 400:
@@ -102,7 +110,13 @@ def call(conn, task: str, system: str, user: str, *, schema: dict | None = None,
     res = Result(False)
     try:
         fn = _claude if provider == "claude" else _gemini
-        text, tin, tout, stop = fn(t, system, user, schema, timeout, key, mt)
+        try:
+            text, tin, tout, stop = fn(t, system, user, schema, timeout, key, mt)
+        except (httpx.ConnectError, httpx.ReadError, httpx.RemoteProtocolError):
+            if timeout < 30:          # 실시간 코칭(5초 제한)은 재시도하지 않고 바로 저장 문장으로 대체
+                raise
+            time.sleep(1.5)           # 생성·보고서 같은 느린 호출은 연결이 끊기면 한 번 더 시도
+            text, tin, tout, stop = fn(t, system, user, schema, timeout, key, mt)
         res = Result(True, text=text, input_tokens=tin, output_tokens=tout, stop_reason=stop)
         if provider == "claude" and stop == "refusal":
             res.ok, res.fail_reason = False, "refusal"

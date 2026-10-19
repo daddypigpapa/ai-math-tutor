@@ -7,7 +7,7 @@ import json
 import re
 
 
-from . import config, db, llm, prompts, stats
+from . import config, db, llm, prompts, stats, taxonomy
 
 _MD = re.compile(r"(\*\*|__|`|^\s*#|^\s*[-*•]\s|\[[^\]]+\]\([^)]+\))", re.M)
 _FORMAL = re.compile(r"(요|습니다|입니다|세요|까요)[\s.?!~]*$")
@@ -59,9 +59,9 @@ def leaks(text: str, problem: dict) -> bool:
     for tok in re.findall(r"[0-9a-z^+\-()/]{3,}", t)[:30]:
         try:
             if form == "factored":
-                if verify.canon(verify.parse(tok, evaluate=False)) == ans_canon:
+                if verify.canon(verify.parse(tok, evaluate=False, implicit=True)) == ans_canon:
                     return True
-            elif verify.parse(tok) == ans:   # 구조가 같은 식만 누설 — 문제 속 곱 (x+4)(x+4) 같은 미전개 꼴은 통과
+            elif verify.parse(tok, implicit=True) == ans:   # 구조가 같은 식만 누설 — 문제 속 곱 (x+4)(x+4) 같은 미전개 꼴은 통과
                 return True
         except Exception:
             continue
@@ -92,7 +92,8 @@ def check_text(text: str, problem: dict | None = None) -> str | None:
 
 
 def _sanitize(text: str) -> str:
-    return text.strip().strip('"').strip()
+    # 모델이 습관적으로 붙이는 백틱·별표는 지우고, 목록·제목 같은 구조적 마크다운은 check_text 가 거른다
+    return text.replace("`", "").replace("**", "").strip().strip('"').strip()
 
 
 # ---- 일일 한도 -----------------------------------------------------------
@@ -119,7 +120,8 @@ def _coach_examples() -> str:
     for ex in json.loads(p.read_text(encoding="utf-8")):
         out.append(
             f"<example>\n<problem>{ex['problem']}</problem>\n<steps_until_error>{ex['steps_until_error']}</steps_until_error>\n"
-            f"<chosen_answer error_type=\"{ex['error_type']}\">{ex['chosen']}</chosen_answer>\n"
+            f"<chosen_answer error_type=\"{ex['error_type']}\" error_name=\"{taxonomy.error_name(ex['error_type'])}\" "
+            f"error_step=\"{ex['error_step']}\">{ex['chosen']}</chosen_answer>\n"
             f"<stored_feedback>{ex['stored']}</stored_feedback>\n<recent_history error_type=\"{ex['error_type']}\">{ex['history']}</recent_history>\n"
             f"<coaching>{ex['coaching']}</coaching>\n</example>"
         )
@@ -137,9 +139,24 @@ def build_coach_prompt(conn, learner_id: int, problem: dict, chosen: dict) -> tu
     user = prompts.fill(
         user_tpl, problem=problem["question"],
         steps_until_error=" / ".join(until) if until else "없음(첫 단계에서 틀림)",
-        chosen=chosen["value"], error_type=err, stored_feedback=chosen.get("feedback", ""), history=history,
+        chosen=chosen["value"], error_type=err, error_name=taxonomy.error_name(err), error_step=chosen.get("error_step", 1), stored_feedback=chosen.get("feedback", ""), history=history,
     )
     return system, user
+
+
+def _step_leak(text: str, problem: dict, chosen: dict) -> str | None:
+    """틀린 단계 앞의 계산단계는 프롬프트에 들어가므로(명세 8절), 모델이 그 풀이를 새게 하면 탈락시킨다.
+    ① 단계 문장을 그대로 베낌  ② 문제·고른 답·저장 피드백에 없는 수(4 이상)를 단계에서 가져와 말함(예: 인수분해의 두 수)."""
+    t = _norm(text)
+    prev = [s["text"] for s in problem.get("steps", []) if s["no"] < chosen.get("error_step", 1)]
+    for s in prev:
+        if len(_norm(s)) >= 6 and _norm(s) in t:
+            return "leak_step"
+    known = set(re.findall(r"\d+", " ".join([problem.get("question", ""), chosen.get("value", ""), chosen.get("feedback", "")])))
+    for n in set(re.findall(r"\d+", " ".join(prev))) - known:
+        if int(n) >= 4 and re.search(rf"(?<![\d.]){n}(?![\d.])", text):
+            return "leak_step"
+    return None
 
 
 def coach_wrong(conn, attempt: dict, problem: dict, chosen: dict) -> dict:
@@ -154,7 +171,7 @@ def coach_wrong(conn, attempt: dict, problem: dict, chosen: dict) -> dict:
     if not r.ok:
         return stored
     text = _sanitize(r.text)
-    reason = check_text(text, problem)
+    reason = check_text(text, problem) or _step_leak(text, problem, chosen)
     if reason:
         llm.mark_failed(conn, r.call_id, reason)
         return stored

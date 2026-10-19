@@ -1,0 +1,60 @@
+{
+  "id": "m3-poly-f04",
+  "unit": "m3-poly",
+  "source": "ai",
+  "seq": 16,
+  "difficulty": 2,
+  "status": "verified",
+  "status_reason": "",
+  "prompt_version": "generate_v2",
+  "question": "다음 식을 인수분해하시오. $x^2-x-56$",
+  "answer_form": "factored",
+  "original_sympy": "x**2-x-56",
+  "hint": "곱해서 상수항이 되고 더해서 일차항의 계수가 되는 두 수를 찾아보자.",
+  "intent": "이차항의 계수가 1인 이차식을 곱셈 공식의 역을 이용해 인수분해할 수 있는지 확인한다.",
+  "steps": [
+    {
+      "no": 1,
+      "text": "곱이 −56, 합이 −1인 두 수를 찾는다: −8과 7",
+      "sympy": "x**2-x-56"
+    },
+    {
+      "no": 2,
+      "text": "x² − x − 56 = (x − 8)(x + 7)",
+      "sympy": "(x-8)*(x+7)"
+    }
+  ],
+  "answer": "(x - 8)(x + 7)",
+  "answer_sympy": "(x - 8)*(x + 7)",
+  "choices": [
+    {
+      "value": "(x - 8)(x + 7)",
+      "correct": true
+    },
+    {
+      "value": "(x + 8)(x - 7)",
+      "correct": false,
+      "error_type": "FACTOR_SIGN",
+      "error_step": 2,
+      "wrong_step_sympy": "(x+8)*(x-7)",
+      "feedback": "곱해서 −56이 되는 두 수는 맞게 찾았는데 부호가 서로 바뀐 것 같아. 더해서 −1이 되는지 다시 확인해 볼래?"
+    },
+    {
+      "value": "(x - 8)(x - 7)",
+      "correct": false,
+      "error_type": "SIGN",
+      "error_step": 2,
+      "wrong_step_sympy": "(x-8)*(x-7)",
+      "feedback": "두 수의 곱이 −56이 되려면 부호가 어떻게 되어야 할까? 상수항의 부호를 다시 확인해 봐."
+    },
+    {
+      "value": "(x - 9)(x + 8)",
+      "correct": false,
+      "error_type": "COEF_COMBINE",
+      "error_step": 2,
+      "wrong_step_sympy": "(x-9)*(x+8)",
+      "feedback": "곱이 −56이 되는 두 수를 찾았지만 합을 잘못 계산한 것 같아. 두 수를 더하면 일차항의 계수가 되는지 확인해 볼래?"
+    }
+  ],
+  "repair_tries": 0
+}

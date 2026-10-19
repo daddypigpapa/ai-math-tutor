@@ -1,0 +1,64 @@
+{
+  "id": "m3-poly-s01",
+  "unit": "m3-poly",
+  "source": "ai",
+  "seq": 1,
+  "difficulty": 1,
+  "status": "verified",
+  "status_reason": "",
+  "prompt_version": "seed-v1",
+  "question": "다음 식을 전개하시오. $(x+3)(x-5)$",
+  "answer_form": "expanded",
+  "original_sympy": "(x+3)*(x-5)",
+  "hint": "분배법칙으로 x와 3을 각각 (x−5)에 곱해 보자.",
+  "intent": "다항식의 곱셈에서 네 항을 빠짐없이 곱하고 동류항을 정리하는지 확인한다.",
+  "steps": [
+    {
+      "no": 1,
+      "text": "x·x + x·(−5) + 3·x + 3·(−5)",
+      "sympy": "x*x + x*(-5) + 3*x + 3*(-5)"
+    },
+    {
+      "no": 2,
+      "text": "x² − 5x + 3x − 15",
+      "sympy": "x**2 - 5*x + 3*x - 15"
+    },
+    {
+      "no": 3,
+      "text": "x² − 2x − 15",
+      "sympy": "x**2 - 2*x - 15"
+    }
+  ],
+  "answer": "x^2 - 2x - 15",
+  "answer_sympy": "x**2 - 2*x - 15",
+  "choices": [
+    {
+      "value": "x^2 - 2x - 15",
+      "correct": true
+    },
+    {
+      "value": "x^2 - 15",
+      "correct": false,
+      "error_type": "EXPAND_MISSING_TERM",
+      "error_step": 1,
+      "wrong_step_sympy": "x*x + 3*(-5)",
+      "feedback": "분배할 때 x×(−5)와 3×x를 빠뜨렸어. 곱해야 할 항은 모두 몇 개일까?"
+    },
+    {
+      "value": "x^2 - 2x + 15",
+      "correct": false,
+      "error_type": "SIGN",
+      "error_step": 1,
+      "wrong_step_sympy": "x*x + x*(-5) + 3*x + 3*5",
+      "feedback": "3×(−5)의 부호를 다시 봐. 양수와 음수를 곱하면 부호가 어떻게 될까?"
+    },
+    {
+      "value": "x^2 + 2x - 15",
+      "correct": false,
+      "error_type": "COEF_COMBINE",
+      "error_step": 3,
+      "wrong_step_sympy": "x**2 + 2*x - 15",
+      "feedback": "−5x + 3x를 정리할 때 실수했어. −5와 3을 더하면 얼마일까?"
+    }
+  ]
+}

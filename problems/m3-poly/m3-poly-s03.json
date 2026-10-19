@@ -1,0 +1,59 @@
+{
+  "id": "m3-poly-s03",
+  "unit": "m3-poly",
+  "source": "ai",
+  "seq": 3,
+  "difficulty": 1,
+  "status": "verified",
+  "status_reason": "",
+  "prompt_version": "seed-v1",
+  "question": "다음 식을 전개하시오. $(x+5)(x-5)$",
+  "answer_form": "expanded",
+  "original_sympy": "(x+5)*(x-5)",
+  "hint": "두 식이 (a+b)(a−b) 꼴인지 살펴보자.",
+  "intent": "합차공식 (a+b)(a−b)=a²−b²을 쓸 수 있는지 확인한다.",
+  "steps": [
+    {
+      "no": 1,
+      "text": "x² − 5²",
+      "sympy": "x**2 - 5**2"
+    },
+    {
+      "no": 2,
+      "text": "x² − 25",
+      "sympy": "x**2 - 25"
+    }
+  ],
+  "answer": "x^2 - 25",
+  "answer_sympy": "x**2 - 25",
+  "choices": [
+    {
+      "value": "x^2 - 25",
+      "correct": true
+    },
+    {
+      "value": "x^2 - 10x + 25",
+      "correct": false,
+      "error_type": "DIFF_SQUARES",
+      "error_step": 1,
+      "wrong_step_sympy": "x**2 - 2*x*5 + 5**2",
+      "feedback": "합차공식인데 (x−5)²처럼 풀었어. (a+b)(a−b)에서는 가운데 항이 서로 없어지지 않을까?"
+    },
+    {
+      "value": "x^2 + 25",
+      "correct": false,
+      "error_type": "SIGN",
+      "error_step": 2,
+      "wrong_step_sympy": "x**2 + 25",
+      "feedback": "x²과 5²을 어떻게 이어야 할지 다시 봐. 합차공식의 가운데에는 어떤 부호가 들어갈까?"
+    },
+    {
+      "value": "x^2 - 10",
+      "correct": false,
+      "error_type": "COEF_COMBINE",
+      "error_step": 2,
+      "wrong_step_sympy": "x**2 - 10",
+      "feedback": "5²을 계산하는 부분이 이상해. 5²은 5를 몇 번 곱한 걸까?"
+    }
+  ]
+}

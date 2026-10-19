@@ -1,0 +1,64 @@
+{
+  "id": "m3-poly-s06",
+  "unit": "m3-poly",
+  "source": "ai",
+  "seq": 6,
+  "difficulty": 2,
+  "status": "verified",
+  "status_reason": "",
+  "prompt_version": "seed-v1",
+  "question": "다음 식을 전개하시오. $(3x+2)(x-4)$",
+  "answer_form": "expanded",
+  "original_sympy": "(3*x+2)*(x-4)",
+  "hint": "3x와 2를 각각 (x−4)에 곱해 보자. 부호에 조심해.",
+  "intent": "음수가 섞인 두 일차식의 곱을 부호 실수 없이 전개하는지 확인한다.",
+  "steps": [
+    {
+      "no": 1,
+      "text": "3x·x + 3x·(−4) + 2·x + 2·(−4)",
+      "sympy": "3*x*x + 3*x*(-4) + 2*x + 2*(-4)"
+    },
+    {
+      "no": 2,
+      "text": "3x² − 12x + 2x − 8",
+      "sympy": "3*x**2 - 12*x + 2*x - 8"
+    },
+    {
+      "no": 3,
+      "text": "3x² − 10x − 8",
+      "sympy": "3*x**2 - 10*x - 8"
+    }
+  ],
+  "answer": "3x^2 - 10x - 8",
+  "answer_sympy": "3*x**2 - 10*x - 8",
+  "choices": [
+    {
+      "value": "3x^2 - 10x - 8",
+      "correct": true
+    },
+    {
+      "value": "3x^2 - 10x + 8",
+      "correct": false,
+      "error_type": "SIGN",
+      "error_step": 1,
+      "wrong_step_sympy": "3*x*x + 3*x*(-4) + 2*x + 2*4",
+      "feedback": "마지막 곱 2×(−4)의 부호를 다시 봐. 양수와 음수를 곱하면 어떻게 될까?"
+    },
+    {
+      "value": "3x^2 - 14x - 8",
+      "correct": false,
+      "error_type": "COEF_COMBINE",
+      "error_step": 3,
+      "wrong_step_sympy": "3*x**2 - 14*x - 8",
+      "feedback": "−12x와 2x를 합칠 때 실수했어. −12에 2를 더하면 얼마일까?"
+    },
+    {
+      "value": "3x^2 - 12x - 8",
+      "correct": false,
+      "error_type": "EXPAND_MISSING_TERM",
+      "error_step": 1,
+      "wrong_step_sympy": "3*x*x + 3*x*(-4) + 2*(-4)",
+      "feedback": "곱셈이 네 번 나와야 하는데 2×x가 없어. 뒤 괄호의 x와 곱해야 할 항을 찾아봐."
+    }
+  ]
+}

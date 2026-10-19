@@ -1,0 +1,59 @@
+{
+  "id": "m3-poly-s10",
+  "unit": "m3-poly",
+  "source": "ai",
+  "seq": 10,
+  "difficulty": 2,
+  "status": "verified",
+  "status_reason": "",
+  "prompt_version": "seed-v1",
+  "question": "다음 식을 인수분해하시오. $2x^2-8$",
+  "answer_form": "factored",
+  "original_sympy": "2*x**2-8",
+  "hint": "먼저 두 항에 공통으로 들어 있는 수를 묶어 보자.",
+  "intent": "공통인수를 묶은 뒤 합차공식까지 써서 완전히 인수분해하는지 확인한다.",
+  "steps": [
+    {
+      "no": 1,
+      "text": "2(x² − 4)",
+      "sympy": "2*(x**2-4)"
+    },
+    {
+      "no": 2,
+      "text": "2(x − 2)(x + 2)",
+      "sympy": "2*(x-2)*(x+2)"
+    }
+  ],
+  "answer": "2(x - 2)(x + 2)",
+  "answer_sympy": "2*(x - 2)*(x + 2)",
+  "choices": [
+    {
+      "value": "2(x - 2)(x + 2)",
+      "correct": true
+    },
+    {
+      "value": "2(x^2 - 4)",
+      "correct": false,
+      "error_type": "FACTOR_INCOMPLETE",
+      "error_step": 1,
+      "wrong_step_sympy": "2*(x**2-4)",
+      "feedback": "공통인수는 잘 묶었어. 그런데 괄호 안의 식을 더 쪼갤 수 있는지 다시 봐."
+    },
+    {
+      "value": "2(x - 2)^2",
+      "correct": false,
+      "error_type": "DIFF_SQUARES",
+      "error_step": 2,
+      "wrong_step_sympy": "2*(x-2)**2",
+      "feedback": "괄호 안의 식은 제곱의 차 꼴이야. 제곱의 차는 어떤 두 식의 곱으로 바뀔까?"
+    },
+    {
+      "value": "(x - 2)(x + 2)",
+      "correct": false,
+      "error_type": "FACTOR_COMMON",
+      "error_step": 2,
+      "wrong_step_sympy": "(x-2)*(x+2)",
+      "feedback": "괄호 안은 잘 쪼갰는데 맨 앞에서 묶었던 수가 사라졌어. 인수분해한 식을 다시 전개해서 원래 식과 같은지 확인해 봐."
+    }
+  ]
+}

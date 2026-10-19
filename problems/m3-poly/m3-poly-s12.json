@@ -1,0 +1,59 @@
+{
+  "id": "m3-poly-s12",
+  "unit": "m3-poly",
+  "source": "ai",
+  "seq": 12,
+  "difficulty": 2,
+  "status": "verified",
+  "status_reason": "",
+  "prompt_version": "seed-v1",
+  "question": "다음 식을 인수분해하시오. $4x^2-9$",
+  "answer_form": "factored",
+  "original_sympy": "4*x**2-9",
+  "hint": "4x²은 어떤 식의 제곱일까? 9는 어떤 수의 제곱일까?",
+  "intent": "계수가 있는 합차공식 a²−b² = (a+b)(a−b)로 인수분해하는지 확인한다.",
+  "steps": [
+    {
+      "no": 1,
+      "text": "(2x)² − 3²",
+      "sympy": "(2*x)**2 - 3**2"
+    },
+    {
+      "no": 2,
+      "text": "(2x − 3)(2x + 3)",
+      "sympy": "(2*x-3)*(2*x+3)"
+    }
+  ],
+  "answer": "(2x - 3)(2x + 3)",
+  "answer_sympy": "(2*x - 3)*(2*x + 3)",
+  "choices": [
+    {
+      "value": "(2x - 3)(2x + 3)",
+      "correct": true
+    },
+    {
+      "value": "(2x - 3)^2",
+      "correct": false,
+      "error_type": "DIFF_SQUARES",
+      "error_step": 2,
+      "wrong_step_sympy": "(2*x-3)**2",
+      "feedback": "제곱의 차를 차의 제곱처럼 썼어. 제곱의 차는 합과 차의 곱으로 바뀌어. 어떻게 쓸 수 있을까?"
+    },
+    {
+      "value": "(2x + 3)^2",
+      "correct": false,
+      "error_type": "SQUARE_FORMULA",
+      "error_step": 2,
+      "wrong_step_sympy": "(2*x+3)**2",
+      "feedback": "합의 제곱은 전개하면 가운데 항이 생겨. 이 식에는 가운데 항이 있었나? 다시 봐."
+    },
+    {
+      "value": "(4x - 3)(x + 3)",
+      "correct": false,
+      "error_type": "COEF_COMBINE",
+      "error_step": 2,
+      "wrong_step_sympy": "(4*x-3)*(x+3)",
+      "feedback": "4x²을 4x와 x로 나눈 것 같아. 같은 식의 제곱으로 봐야 하지 않을까?"
+    }
+  ]
+}

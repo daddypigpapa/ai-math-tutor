@@ -1,0 +1,59 @@
+{
+  "id": "m3-poly-s02",
+  "unit": "m3-poly",
+  "source": "ai",
+  "seq": 2,
+  "difficulty": 1,
+  "status": "verified",
+  "status_reason": "",
+  "prompt_version": "seed-v1",
+  "question": "다음 식을 전개하시오. $(x+4)^2$",
+  "answer_form": "expanded",
+  "original_sympy": "(x+4)**2",
+  "hint": "(x+4)²은 (x+4)를 두 번 곱한 거야. 곱셈공식을 떠올려 보자.",
+  "intent": "완전제곱식 (a+b)²의 전개 공식을 정확히 쓰는지 확인한다.",
+  "steps": [
+    {
+      "no": 1,
+      "text": "x² + 2·x·4 + 4²",
+      "sympy": "x**2 + 2*x*4 + 4**2"
+    },
+    {
+      "no": 2,
+      "text": "x² + 8x + 16",
+      "sympy": "x**2 + 8*x + 16"
+    }
+  ],
+  "answer": "x^2 + 8x + 16",
+  "answer_sympy": "x**2 + 8*x + 16",
+  "choices": [
+    {
+      "value": "x^2 + 8x + 16",
+      "correct": true
+    },
+    {
+      "value": "x^2 + 16",
+      "correct": false,
+      "error_type": "SQUARE_FORMULA",
+      "error_step": 1,
+      "wrong_step_sympy": "x**2 + 4**2",
+      "feedback": "x²과 4²만 더해서 풀었어. 가운데 항은 어떻게 생길까? (x+4)(x+4)로 직접 곱해 봐."
+    },
+    {
+      "value": "x^2 - 8x + 16",
+      "correct": false,
+      "error_type": "SIGN",
+      "error_step": 1,
+      "wrong_step_sympy": "x**2 - 2*x*4 + 4**2",
+      "feedback": "가운데 항의 부호를 다시 봐. (x+4)²에는 더하기만 있는데 부호가 어떻게 되어야 할까?"
+    },
+    {
+      "value": "x^2 + 8x",
+      "correct": false,
+      "error_type": "EXPAND_MISSING_TERM",
+      "error_step": 1,
+      "wrong_step_sympy": "x**2 + 2*x*4",
+      "feedback": "x²과 가운데 항은 구했는데 마지막 항이 빠졌어. 4를 두 번 곱한 항은 어디 갔을까?"
+    }
+  ]
+}

@@ -3,3 +3,4 @@ uvicorn>=0.30
 sympy>=1.13
 httpx>=0.27
 pytest>=8.0
+truststore>=0.9

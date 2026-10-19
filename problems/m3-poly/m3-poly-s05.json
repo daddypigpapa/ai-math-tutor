@@ -1,0 +1,59 @@
+{
+  "id": "m3-poly-s05",
+  "unit": "m3-poly",
+  "source": "ai",
+  "seq": 5,
+  "difficulty": 2,
+  "status": "verified",
+  "status_reason": "",
+  "prompt_version": "seed-v1",
+  "question": "다음 식을 전개하시오. $(2x-3)^2$",
+  "answer_form": "expanded",
+  "original_sympy": "(2*x-3)**2",
+  "hint": "(a−b)² 공식에서 a가 2x, b가 3이야. 대입해 보자.",
+  "intent": "계수가 있는 완전제곱식 (a−b)²을 정확히 전개하는지 확인한다.",
+  "steps": [
+    {
+      "no": 1,
+      "text": "(2x)² − 2·2x·3 + 3²",
+      "sympy": "(2*x)**2 - 2*(2*x)*3 + 3**2"
+    },
+    {
+      "no": 2,
+      "text": "4x² − 12x + 9",
+      "sympy": "4*x**2 - 12*x + 9"
+    }
+  ],
+  "answer": "4x^2 - 12x + 9",
+  "answer_sympy": "4*x**2 - 12*x + 9",
+  "choices": [
+    {
+      "value": "4x^2 - 12x + 9",
+      "correct": true
+    },
+    {
+      "value": "4x^2 + 9",
+      "correct": false,
+      "error_type": "SQUARE_FORMULA",
+      "error_step": 1,
+      "wrong_step_sympy": "(2*x)**2 + 3**2",
+      "feedback": "(2x)²과 3²만으로 풀었어. 가운데 항이 빠졌는데, 공식에서 어디서 생길까?"
+    },
+    {
+      "value": "4x^2 + 12x + 9",
+      "correct": false,
+      "error_type": "SIGN",
+      "error_step": 1,
+      "wrong_step_sympy": "(2*x)**2 + 2*(2*x)*3 + 3**2",
+      "feedback": "(a−b)²의 가운데 항은 부호가 마이너스야. 지금 답은 가운데 항의 부호가 달라졌는지 확인해 봐."
+    },
+    {
+      "value": "4x^2 - 12x",
+      "correct": false,
+      "error_type": "EXPAND_MISSING_TERM",
+      "error_step": 1,
+      "wrong_step_sympy": "(2*x)**2 - 2*(2*x)*3",
+      "feedback": "마지막 항이 빠졌어. 공식의 항이 모두 쓰였는지 세어 봐."
+    }
+  ]
+}

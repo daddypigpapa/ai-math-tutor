@@ -1,0 +1,59 @@
+{
+  "id": "m3-poly-s09",
+  "unit": "m3-poly",
+  "source": "ai",
+  "seq": 9,
+  "difficulty": 1,
+  "status": "verified",
+  "status_reason": "",
+  "prompt_version": "seed-v1",
+  "question": "다음 식을 인수분해하시오. $3x^2+6x$",
+  "answer_form": "factored",
+  "original_sympy": "3*x**2+6*x",
+  "hint": "3x²과 6x에 공통으로 들어 있는 가장 큰 인수가 뭘까?",
+  "intent": "수와 문자의 공통인수를 모두 찾아 묶는 인수분해를 확인한다.",
+  "steps": [
+    {
+      "no": 1,
+      "text": "3x·x + 3x·2",
+      "sympy": "3*x*x + 3*x*2"
+    },
+    {
+      "no": 2,
+      "text": "3x(x + 2)",
+      "sympy": "3*x*(x+2)"
+    }
+  ],
+  "answer": "3x(x + 2)",
+  "answer_sympy": "3*x*(x + 2)",
+  "choices": [
+    {
+      "value": "3x(x + 2)",
+      "correct": true
+    },
+    {
+      "value": "3(x^2 + 2x)",
+      "correct": false,
+      "error_type": "FACTOR_INCOMPLETE",
+      "error_step": 2,
+      "wrong_step_sympy": "3*(x**2+2*x)",
+      "feedback": "3은 잘 묶었어. 그런데 괄호 안의 두 항에도 공통으로 들어 있는 문자가 남았어. 찾아볼래?"
+    },
+    {
+      "value": "x(3x + 6)",
+      "correct": false,
+      "error_type": "FACTOR_COMMON",
+      "error_step": 2,
+      "wrong_step_sympy": "x*(3*x+6)",
+      "feedback": "문자는 묶었지만 3과 6의 공약수는 그대로 남겼어. 가장 큰 공통인수를 다시 찾아봐."
+    },
+    {
+      "value": "3x(x - 2)",
+      "correct": false,
+      "error_type": "SIGN",
+      "error_step": 2,
+      "wrong_step_sympy": "3*x*(x-2)",
+      "feedback": "괄호 안의 부호를 확인해 봐. 인수분해한 식을 다시 전개해서 원래 식과 같은지 보면 알 수 있어."
+    }
+  ]
+}

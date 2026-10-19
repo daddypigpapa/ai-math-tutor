@@ -43,7 +43,16 @@ def page_parent():
     return FileResponse(config.web_dir() / "parent.html")
 
 
-app.mount("/static", StaticFiles(directory=config.web_dir()), name="static")
+class NoCacheStatic(StaticFiles):
+    """app.js 를 고쳐도 아이 PC 브라우저가 옛 파일을 쓰지 않게 한다 (ETag 로 매번 재확인)."""
+
+    async def get_response(self, path, scope):
+        resp = await super().get_response(path, scope)
+        resp.headers["Cache-Control"] = "no-cache"
+        return resp
+
+
+app.mount("/static", NoCacheStatic(directory=config.web_dir()), name="static")
 
 
 # ---- 학습 API ------------------------------------------------------------

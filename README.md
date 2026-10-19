@@ -4,8 +4,8 @@
 서버 PC가 자료를 만들고 웹으로 제공하며, 아이 PC는 브라우저로 접속만 한다.
 구현 근거: 「AI가정교사 구현명세 (1차)」 (claude.ai 문서 `6LYu4JzQHVqXGoYk4MnYee`, 2026-10-19).
 
-> **상태: 구축 완료, 실행 검증 전.** 이 폴더의 코드는 한 줄도 실행해 보지 않았다(요청에 따라 검증은 별도 담당이 한다).
-> 검증 절차는 [docs/검증_체크리스트.md](docs/검증_체크리스트.md).
+> **상태: 1차 검증 완료(일부 미달·미검증 있음).** 결과는 [docs/검증_결과.md](docs/검증_결과.md), 절차는 [docs/검증_체크리스트.md](docs/검증_체크리스트.md).
+> 미달: 생성 오답 타당성 69~72%(기준 90%). 미검증: 디스코드 전송, 작업 스케줄러·방화벽·Tailscale.
 
 ## 설치·실행 (서버 PC, Windows PowerShell 5.1)
 
@@ -31,6 +31,7 @@ pipeline/  generate.py(자료 생성·AI 문제·복습 준비) verify.py(sympy 
 prompts/   generate_v1 repair_v1 newproblem_v1 convert_v1 coach_v1 step_help_v1 report_v1 judge_*_v1 + examples/
 web/       learn.html parent.html app.js parent.js style.css katex/(로컬 복사본)
 seed/      손으로 쓴 시작 문제 12개 (전개 7 + 인수분해 5)  →  problems/ 로 검증 후 반영
+problems/  검증 통과한 문제 JSON (시작 12개 + AI가 만든 인수분해 5개 f01~f05)
 tests/     단위·API 테스트(pytest) + eval/(평가 세트 36개, 채점 스크립트)
 config.toml  점수·임계값·하루 목표·작업별 AI 제공자/모델·단가·일일 한도·보고서 설정
 ```
