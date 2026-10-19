@@ -1,0 +1,54 @@
+:root {
+  --bg: #f6f7fb; --card: #fff; --ink: #1d2433; --sub: #5b6577; --line: #dfe3ec;
+  --accent: #3b6df5; --accent-ink: #fff; --good: #1f9d55; --bad: #d64545; --warn: #c98a00;
+  --radius: 14px;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 18px/1.55 "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif; }
+#app, .wrap { max-width: 760px; margin: 0 auto; padding: 16px; }
+.wide { max-width: 1100px; }
+h1 { font-size: 26px; margin: 8px 0 16px; }
+h2 { font-size: 20px; margin: 18px 0 8px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; margin: 12px 0; }
+.card.good { border-color: var(--good); background: #effaf3; }
+.card.bad { border-color: var(--bad); background: #fdf1f1; }
+.card.help { border-left: 6px solid var(--accent); }
+.sub { color: var(--sub); font-size: 15px; }
+.q { font-size: 24px; line-height: 1.8; }
+.btn { display: block; width: 100%; padding: 14px 16px; margin: 8px 0; font: inherit; font-size: 19px; text-align: left;
+  background: var(--card); color: var(--ink); border: 2px solid var(--line); border-radius: var(--radius); cursor: pointer; }
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); text-align: center; }
+.btn.small { display: inline-block; width: auto; padding: 6px 12px; font-size: 15px; margin: 4px 6px 4px 0; }
+.btn.choice { font-size: 22px; text-align: center; }
+.btn.choice.wrong { border-color: var(--bad); background: #fdf1f1; }
+.btn.choice.right { border-color: var(--good); background: #effaf3; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.row .btn { flex: 1 1 45%; width: auto; }
+.bar { background: #e5e9f2; border-radius: 99px; height: 14px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width .3s; }
+.bar.done > i { background: var(--good); }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.link { background: none; border: none; color: var(--accent); font: inherit; font-size: 15px; cursor: pointer; padding: 4px 0; }
+.step { padding: 6px 0; border-bottom: 1px dashed var(--line); }
+.step:last-child { border-bottom: none; }
+.shake { animation: shake .3s; }
+@keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.katex { font-size: 1.1em; }
+
+/* 부모 화면 */
+nav.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0; }
+nav.tabs button { padding: 8px 14px; font: inherit; font-size: 15px; border: 1px solid var(--line); border-radius: 99px; background: var(--card); cursor: pointer; }
+nav.tabs button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; background: var(--card); }
+th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+th { background: #eef1f8; }
+.tag { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 13px; background: #eef1f8; }
+.tag.weak { background: #fdf1f1; color: var(--bad); }
+.tag.ok { background: #effaf3; color: var(--good); }
+pre { white-space: pre-wrap; word-break: break-word; background: #f0f2f8; padding: 10px; border-radius: 8px; font-size: 14px; }
+input, select, textarea { font: inherit; font-size: 16px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; max-width: 100%; }
+textarea { width: 100%; min-height: 160px; font-family: Consolas, monospace; font-size: 14px; }
+label { display: inline-block; margin: 4px 12px 4px 0; font-size: 15px; }
+.err { color: var(--bad); }

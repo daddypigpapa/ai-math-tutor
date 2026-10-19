@@ -1,0 +1,109 @@
+# AI 가정교사 설정 — 점수·임계값·AI 제공자/모델·단가는 모두 여기서 바꾼다 (명세 2·3·8·9절)
+
+[scoring]                  # 채점 (명세 7절)
+first = 10                 # 첫 시도 정답
+retry = 5                  # 재시도 정답
+first_after_steps = 5      # 계산단계(c)를 본 뒤 첫 시도 정답
+retry_after_steps = 2      # 계산단계(c)를 본 뒤 재시도 정답
+wrong = 0                  # 2번 틀려 오답 처리
+
+[goal]
+daily = 10                 # 하루 목표 문제 수 (학습자별 값이 있으면 그쪽이 우선)
+
+[weak]                     # 약점 판정·복습 (명세 7절)
+min_problems = 10          # 최소 푼 문제 수
+window = 20                # 최근 N문제 기준
+threshold = 0.60           # 정답률이 이 값 미만이면 약점
+review_size = 10           # 복습 1회 문제 수
+review_prep_count = 10     # 약점 발생 시 자동 준비하는 AI 문제 수
+
+[coach]                    # 실시간 코칭 (명세 8절)
+daily_limit = 100          # 학습자별 하루 실시간 AI 호출 한도
+timeout_s = 5              # 응답 대기 상한(초) — 넘으면 저장된 문장 사용
+max_chars = 200
+step_help_more = 2         # "한 번 더 쉽게" 최대 횟수
+
+[parent]
+time_cap_s = 600           # 학습 시간 집계 시 한 문제당 상한(초). 자리 비움 보정
+
+[report]                   # 주간 보고서 (명세 9-1절). 실행 시각은 Windows 작업 스케줄러가 정한다.
+weekday = "sun"
+hour = 21
+change_threshold_pp = 10   # 이 %p 이상 변해야 "좋아짐/나빠짐" 문구를 붙인다
+[report.tiers]             # 정답률 구간별 정해진 문장 (초안, 미결: 부모 확정 필요)
+t90 = "거의 실수 없이 안정적으로 풀고 있다"
+t75 = "대체로 잘 풀지만 가끔 실수가 나온다"
+t60 = "기본은 되지만 실수가 자주 나온다"
+t0  = "약한 부분이다. 복습이 필요하다"
+
+# 작업별 AI 제공자·모델 (명세 3절). provider: claude | gemini
+[tasks.generate]           # 자료 생성: 힌트·단계·오답 시나리오
+provider = "claude"
+model = "claude-sonnet-5-5"
+max_tokens = 8000
+effort = "medium"
+prompt = "generate_v1"
+
+[tasks.repair]             # 검증 실패 항목 부분 수정
+provider = "claude"
+model = "claude-sonnet-5-5"
+max_tokens = 8000
+effort = "medium"
+prompt = "repair_v1"
+
+[tasks.newproblem]         # AI 문제 원문 생성
+provider = "claude"
+model = "claude-sonnet-5-5"
+max_tokens = 2000
+effort = "medium"
+prompt = "newproblem_v1"
+
+[tasks.convert]            # 원문 LaTeX → sympy 식 (작은 호출)
+provider = "claude"
+model = "claude-haiku-5-5"
+max_tokens = 1000
+prompt = "convert_v1"
+
+[tasks.coach]              # (가) 오답 직후 코칭
+provider = "gemini"
+model = "gemini-2.5-flash-lite"
+max_tokens = 400
+prompt = "coach_v1"
+
+[tasks.step_help]          # (나) 계산단계 추가 설명
+provider = "gemini"
+model = "gemini-2.5-flash-lite"
+max_tokens = 400
+prompt = "step_help_v1"
+
+[tasks.report]             # 주간 보고서 문장 연결
+provider = "gemini"
+model = "gemini-2.5-flash-lite"
+max_tokens = 1200
+prompt = "report_v1"
+
+[tasks.judge_generate]     # 평가: 생성 오답의 타당성 채점 (생성 모델과 다른 모델)
+provider = "gemini"
+model = "gemini-2.5-flash"
+max_tokens = 600
+prompt = "judge_generate_v1"
+
+[tasks.judge_coach]        # 평가: 코칭이 틀린 단계를 맞게 짚었는지 채점
+provider = "claude"
+model = "claude-haiku-5-5"
+max_tokens = 600
+prompt = "judge_coach_v1"
+
+# 단가 (USD / 100만 토큰). 값은 예시다 — 실제 요금표를 확인해 고칠 것.
+[pricing."claude-sonnet-5-5"]
+input = 3.0
+output = 15.0
+[pricing."claude-haiku-5-5"]
+input = 1.0
+output = 5.0
+[pricing."gemini-2.5-flash-lite"]
+input = 0.10
+output = 0.40
+[pricing."gemini-2.5-flash"]
+input = 0.30
+output = 2.50

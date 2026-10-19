@@ -1,0 +1,136 @@
+[
+  {"id": "m3-poly-s01", "question": "다음 식을 전개하시오. $(x+3)(x-5)$", "original_sympy": "(x+3)*(x-5)", "answer_form": "expanded", "difficulty": 1,
+   "hint": "분배법칙으로 x와 3을 각각 (x−5)에 곱해 보자.",
+   "intent": "다항식의 곱셈에서 네 항을 빠짐없이 곱하고 동류항을 정리하는지 확인한다.",
+   "steps": [
+     {"no": 1, "text": "x·x + x·(−5) + 3·x + 3·(−5)", "sympy": "x*x + x*(-5) + 3*x + 3*(-5)"},
+     {"no": 2, "text": "x² − 5x + 3x − 15", "sympy": "x**2 - 5*x + 3*x - 15"},
+     {"no": 3, "text": "x² − 2x − 15", "sympy": "x**2 - 2*x - 15"}],
+   "distractors": [
+     {"error_type": "EXPAND_MISSING_TERM", "error_step": 1, "wrong_step_sympy": "x*x + 3*(-5)", "feedback": "분배할 때 x×(−5)와 3×x를 빠뜨렸어. 곱해야 할 항은 모두 몇 개일까?"},
+     {"error_type": "SIGN", "error_step": 1, "wrong_step_sympy": "x*x + x*(-5) + 3*x + 3*5", "feedback": "3×(−5)의 부호를 다시 봐. 양수와 음수를 곱하면 부호가 어떻게 될까?"},
+     {"error_type": "COEF_COMBINE", "error_step": 3, "wrong_step_sympy": "x**2 + 2*x - 15", "feedback": "−5x + 3x를 정리할 때 실수했어. −5와 3을 더하면 얼마일까?"}]},
+
+  {"id": "m3-poly-s02", "question": "다음 식을 전개하시오. $(x+4)^2$", "original_sympy": "(x+4)**2", "answer_form": "expanded", "difficulty": 1,
+   "hint": "(x+4)²은 (x+4)를 두 번 곱한 거야. 곱셈공식을 떠올려 보자.",
+   "intent": "완전제곱식 (a+b)²의 전개 공식을 정확히 쓰는지 확인한다.",
+   "steps": [
+     {"no": 1, "text": "x² + 2·x·4 + 4²", "sympy": "x**2 + 2*x*4 + 4**2"},
+     {"no": 2, "text": "x² + 8x + 16", "sympy": "x**2 + 8*x + 16"}],
+   "distractors": [
+     {"error_type": "SQUARE_FORMULA", "error_step": 1, "wrong_step_sympy": "x**2 + 4**2", "feedback": "x²과 4²만 더해서 풀었어. 가운데 항은 어떻게 생길까? (x+4)(x+4)로 직접 곱해 봐."},
+     {"error_type": "SIGN", "error_step": 1, "wrong_step_sympy": "x**2 - 2*x*4 + 4**2", "feedback": "가운데 항의 부호를 다시 봐. (x+4)²에는 더하기만 있는데 부호가 어떻게 되어야 할까?"},
+     {"error_type": "EXPAND_MISSING_TERM", "error_step": 1, "wrong_step_sympy": "x**2 + 2*x*4", "feedback": "x²과 가운데 항은 구했는데 마지막 항이 빠졌어. 4를 두 번 곱한 항은 어디 갔을까?"}]},
+
+  {"id": "m3-poly-s03", "question": "다음 식을 전개하시오. $(x+5)(x-5)$", "original_sympy": "(x+5)*(x-5)", "answer_form": "expanded", "difficulty": 1,
+   "hint": "두 식이 (a+b)(a−b) 꼴인지 살펴보자.",
+   "intent": "합차공식 (a+b)(a−b)=a²−b²을 쓸 수 있는지 확인한다.",
+   "steps": [
+     {"no": 1, "text": "x² − 5²", "sympy": "x**2 - 5**2"},
+     {"no": 2, "text": "x² − 25", "sympy": "x**2 - 25"}],
+   "distractors": [
+     {"error_type": "DIFF_SQUARES", "error_step": 1, "wrong_step_sympy": "x**2 - 2*x*5 + 5**2", "feedback": "합차공식인데 (x−5)²처럼 풀었어. (a+b)(a−b)에서는 가운데 항이 서로 없어지지 않을까?"},
+     {"error_type": "SIGN", "error_step": 2, "wrong_step_sympy": "x**2 + 25", "feedback": "x²과 5²을 어떻게 이어야 할지 다시 봐. 합차공식의 가운데에는 어떤 부호가 들어갈까?"},
+     {"error_type": "COEF_COMBINE", "error_step": 2, "wrong_step_sympy": "x**2 - 10", "feedback": "5²을 계산하는 부분이 이상해. 5²은 5를 몇 번 곱한 걸까?"}]},
+
+  {"id": "m3-poly-s04", "question": "다음 식을 전개하시오. $(2x+1)(x+4)$", "original_sympy": "(2*x+1)*(x+4)", "answer_form": "expanded", "difficulty": 2,
+   "hint": "2x와 1을 각각 (x+4)에 곱해 보자.",
+   "intent": "계수가 있는 두 일차식의 곱을 빠짐없이 전개하고 동류항을 합치는지 확인한다.",
+   "steps": [
+     {"no": 1, "text": "2x·x + 2x·4 + 1·x + 1·4", "sympy": "2*x*x + 2*x*4 + 1*x + 1*4"},
+     {"no": 2, "text": "2x² + 8x + x + 4", "sympy": "2*x**2 + 8*x + x + 4"},
+     {"no": 3, "text": "2x² + 9x + 4", "sympy": "2*x**2 + 9*x + 4"}],
+   "distractors": [
+     {"error_type": "EXPAND_MISSING_TERM", "error_step": 1, "wrong_step_sympy": "2*x*x + 1*x + 1*4", "feedback": "곱셈이 네 번 나와야 하는데 2x×4가 빠졌어. 앞 괄호의 2x가 뒤 괄호의 두 항과 모두 곱해졌는지 확인해 봐."},
+     {"error_type": "SIGN", "error_step": 1, "wrong_step_sympy": "2*x*x + 2*x*4 + 1*x - 1*4", "feedback": "마지막 곱 1×4의 부호를 다시 봐. 양수끼리 곱하면 부호가 어떻게 될까?"},
+     {"error_type": "COEF_COMBINE", "error_step": 3, "wrong_step_sympy": "2*x**2 + 8*x + 4", "feedback": "동류항을 합칠 때 x의 계수를 잊은 것 같아. x는 1x로 볼 수 있어. 계수끼리 더하면 얼마일까?"}]},
+
+  {"id": "m3-poly-s05", "question": "다음 식을 전개하시오. $(2x-3)^2$", "original_sympy": "(2*x-3)**2", "answer_form": "expanded", "difficulty": 2,
+   "hint": "(a−b)² 공식에서 a가 2x, b가 3이야. 대입해 보자.",
+   "intent": "계수가 있는 완전제곱식 (a−b)²을 정확히 전개하는지 확인한다.",
+   "steps": [
+     {"no": 1, "text": "(2x)² − 2·2x·3 + 3²", "sympy": "(2*x)**2 - 2*(2*x)*3 + 3**2"},
+     {"no": 2, "text": "4x² − 12x + 9", "sympy": "4*x**2 - 12*x + 9"}],
+   "distractors": [
+     {"error_type": "SQUARE_FORMULA", "error_step": 1, "wrong_step_sympy": "(2*x)**2 + 3**2", "feedback": "(2x)²과 3²만으로 풀었어. 가운데 항이 빠졌는데, 공식에서 어디서 생길까?"},
+     {"error_type": "SIGN", "error_step": 1, "wrong_step_sympy": "(2*x)**2 + 2*(2*x)*3 + 3**2", "feedback": "(a−b)²의 가운데 항은 부호가 마이너스야. 지금 답은 가운데 항의 부호가 달라졌는지 확인해 봐."},
+     {"error_type": "EXPAND_MISSING_TERM", "error_step": 1, "wrong_step_sympy": "(2*x)**2 - 2*(2*x)*3", "feedback": "마지막 항이 빠졌어. 공식의 항이 모두 쓰였는지 세어 봐."}]},
+
+  {"id": "m3-poly-s06", "question": "다음 식을 전개하시오. $(3x+2)(x-4)$", "original_sympy": "(3*x+2)*(x-4)", "answer_form": "expanded", "difficulty": 2,
+   "hint": "3x와 2를 각각 (x−4)에 곱해 보자. 부호에 조심해.",
+   "intent": "음수가 섞인 두 일차식의 곱을 부호 실수 없이 전개하는지 확인한다.",
+   "steps": [
+     {"no": 1, "text": "3x·x + 3x·(−4) + 2·x + 2·(−4)", "sympy": "3*x*x + 3*x*(-4) + 2*x + 2*(-4)"},
+     {"no": 2, "text": "3x² − 12x + 2x − 8", "sympy": "3*x**2 - 12*x + 2*x - 8"},
+     {"no": 3, "text": "3x² − 10x − 8", "sympy": "3*x**2 - 10*x - 8"}],
+   "distractors": [
+     {"error_type": "SIGN", "error_step": 1, "wrong_step_sympy": "3*x*x + 3*x*(-4) + 2*x + 2*4", "feedback": "마지막 곱 2×(−4)의 부호를 다시 봐. 양수와 음수를 곱하면 어떻게 될까?"},
+     {"error_type": "COEF_COMBINE", "error_step": 3, "wrong_step_sympy": "3*x**2 - 14*x - 8", "feedback": "−12x와 2x를 합칠 때 실수했어. −12에 2를 더하면 얼마일까?"},
+     {"error_type": "EXPAND_MISSING_TERM", "error_step": 1, "wrong_step_sympy": "3*x*x + 3*x*(-4) + 2*(-4)", "feedback": "곱셈이 네 번 나와야 하는데 2×x가 없어. 뒤 괄호의 x와 곱해야 할 항을 찾아봐."}]},
+
+  {"id": "m3-poly-s07", "question": "다음 식을 전개하시오. $2x(x^2-3x+1)$", "original_sympy": "2*x*(x**2-3*x+1)", "answer_form": "expanded", "difficulty": 2,
+   "hint": "2x를 괄호 안의 세 항에 각각 곱해 보자.",
+   "intent": "단항식과 다항식의 곱셈에서 지수법칙과 분배법칙을 함께 쓰는지 확인한다.",
+   "steps": [
+     {"no": 1, "text": "2x·x² + 2x·(−3x) + 2x·1", "sympy": "2*x*x**2 + 2*x*(-3*x) + 2*x*1"},
+     {"no": 2, "text": "2x³ − 6x² + 2x", "sympy": "2*x**3 - 6*x**2 + 2*x"}],
+   "distractors": [
+     {"error_type": "EXPAND_MISSING_TERM", "error_step": 1, "wrong_step_sympy": "2*x*x**2 + 2*x*(-3*x)", "feedback": "마지막 항 2x×1이 빠졌어. 괄호 안의 항이 몇 개였는지 세어 봐."},
+     {"error_type": "SIGN", "error_step": 1, "wrong_step_sympy": "2*x*x**2 + 2*x*(3*x) + 2*x*1", "feedback": "2x×(−3x)의 부호를 확인해 봐. 양수와 음수를 곱하면 어떻게 될까?"},
+     {"error_type": "COEF_COMBINE", "error_step": 2, "wrong_step_sympy": "2*x**3 - 5*x**2 + 2*x", "feedback": "2x와 −3x를 곱할 때 계수는 곱해야 하는데 더한 것 같아. 2와 −3을 곱하면 얼마일까?"}]},
+
+  {"id": "m3-poly-s08", "question": "다음 식을 인수분해하시오. $x^2-2x-15$", "original_sympy": "x**2-2*x-15", "answer_form": "factored", "difficulty": 1,
+   "hint": "곱해서 −15, 더해서 −2가 되는 두 수를 찾아보자.",
+   "intent": "x²+(a+b)x+ab = (x+a)(x+b) 꼴로 인수분해하는지 확인한다.",
+   "steps": [
+     {"no": 1, "text": "x² + (−5 + 3)x + (−5)·3", "sympy": "x**2 + (-5+3)*x + (-5)*3"},
+     {"no": 2, "text": "(x − 5)(x + 3)", "sympy": "(x-5)*(x+3)"}],
+   "distractors": [
+     {"error_type": "FACTOR_SIGN", "error_step": 2, "wrong_step_sympy": "(x-3)*(x+5)", "feedback": "곱이 −15가 되는 두 수는 찾았는데 부호가 서로 바뀐 것 같아. 두 수를 더하면 −2가 되는지 확인해 봐."},
+     {"error_type": "SIGN", "error_step": 2, "wrong_step_sympy": "(x+5)*(x+3)", "feedback": "두 수의 부호를 다시 봐. 곱이 음수가 되려면 두 수의 부호가 어떻게 되어야 할까?"},
+     {"error_type": "COEF_COMBINE", "error_step": 2, "wrong_step_sympy": "(x-5)*(x-3)", "feedback": "고른 두 수의 합이 −2가 되는지 계산해 봐. 곱도 −15가 되는지 같이 확인해 보자."}]},
+
+  {"id": "m3-poly-s09", "question": "다음 식을 인수분해하시오. $3x^2+6x$", "original_sympy": "3*x**2+6*x", "answer_form": "factored", "difficulty": 1,
+   "hint": "3x²과 6x에 공통으로 들어 있는 가장 큰 인수가 뭘까?",
+   "intent": "수와 문자의 공통인수를 모두 찾아 묶는 인수분해를 확인한다.",
+   "steps": [
+     {"no": 1, "text": "3x·x + 3x·2", "sympy": "3*x*x + 3*x*2"},
+     {"no": 2, "text": "3x(x + 2)", "sympy": "3*x*(x+2)"}],
+   "distractors": [
+     {"error_type": "FACTOR_INCOMPLETE", "error_step": 2, "wrong_step_sympy": "3*(x**2+2*x)", "feedback": "3은 잘 묶었어. 그런데 괄호 안의 두 항에도 공통으로 들어 있는 문자가 남았어. 찾아볼래?"},
+     {"error_type": "FACTOR_COMMON", "error_step": 2, "wrong_step_sympy": "x*(3*x+6)", "feedback": "문자는 묶었지만 3과 6의 공약수는 그대로 남겼어. 가장 큰 공통인수를 다시 찾아봐."},
+     {"error_type": "SIGN", "error_step": 2, "wrong_step_sympy": "3*x*(x-2)", "feedback": "괄호 안의 부호를 확인해 봐. 인수분해한 식을 다시 전개해서 원래 식과 같은지 보면 알 수 있어."}]},
+
+  {"id": "m3-poly-s10", "question": "다음 식을 인수분해하시오. $2x^2-8$", "original_sympy": "2*x**2-8", "answer_form": "factored", "difficulty": 2,
+   "hint": "먼저 두 항에 공통으로 들어 있는 수를 묶어 보자.",
+   "intent": "공통인수를 묶은 뒤 합차공식까지 써서 완전히 인수분해하는지 확인한다.",
+   "steps": [
+     {"no": 1, "text": "2(x² − 4)", "sympy": "2*(x**2-4)"},
+     {"no": 2, "text": "2(x − 2)(x + 2)", "sympy": "2*(x-2)*(x+2)"}],
+   "distractors": [
+     {"error_type": "FACTOR_INCOMPLETE", "error_step": 1, "wrong_step_sympy": "2*(x**2-4)", "feedback": "공통인수는 잘 묶었어. 그런데 괄호 안의 식을 더 쪼갤 수 있는지 다시 봐."},
+     {"error_type": "DIFF_SQUARES", "error_step": 2, "wrong_step_sympy": "2*(x-2)**2", "feedback": "괄호 안의 식은 제곱의 차 꼴이야. 제곱의 차는 어떤 두 식의 곱으로 바뀔까?"},
+     {"error_type": "FACTOR_COMMON", "error_step": 2, "wrong_step_sympy": "(x-2)*(x+2)", "feedback": "괄호 안은 잘 쪼갰는데 맨 앞에서 묶었던 수가 사라졌어. 인수분해한 식을 다시 전개해서 원래 식과 같은지 확인해 봐."}]},
+
+  {"id": "m3-poly-s11", "question": "다음 식을 인수분해하시오. $x^2-10x+25$", "original_sympy": "x**2-10*x+25", "answer_form": "factored", "difficulty": 2,
+   "hint": "끝항 25는 어떤 수의 제곱일까? 가운데 항과 비교해 보자.",
+   "intent": "완전제곱식 a²−2ab+b² = (a−b)² 꼴을 알아보는지 확인한다.",
+   "steps": [
+     {"no": 1, "text": "x² − 2·x·5 + 5²", "sympy": "x**2 - 2*x*5 + 5**2"},
+     {"no": 2, "text": "(x − 5)²", "sympy": "(x-5)**2"}],
+   "distractors": [
+     {"error_type": "FACTOR_SIGN", "error_step": 2, "wrong_step_sympy": "(x+5)**2", "feedback": "가운데 항이 마이너스니까 괄호 안의 부호도 마이너스여야 하지 않을까? 부호를 다시 봐."},
+     {"error_type": "DIFF_SQUARES", "error_step": 2, "wrong_step_sympy": "(x-5)*(x+5)", "feedback": "합차공식과 완전제곱식을 헷갈렸어. 이 식에 가운데 항이 있는지 보고 어떤 꼴인지 다시 판단해 봐."},
+     {"error_type": "SQUARE_FORMULA", "error_step": 2, "wrong_step_sympy": "(x-10)**2", "feedback": "가운데 항의 계수를 그대로 괄호에 넣었어. 가운데 항은 2ab니까 b는 얼마일까?"}]},
+
+  {"id": "m3-poly-s12", "question": "다음 식을 인수분해하시오. $4x^2-9$", "original_sympy": "4*x**2-9", "answer_form": "factored", "difficulty": 2,
+   "hint": "4x²은 어떤 식의 제곱일까? 9는 어떤 수의 제곱일까?",
+   "intent": "계수가 있는 합차공식 a²−b² = (a+b)(a−b)로 인수분해하는지 확인한다.",
+   "steps": [
+     {"no": 1, "text": "(2x)² − 3²", "sympy": "(2*x)**2 - 3**2"},
+     {"no": 2, "text": "(2x − 3)(2x + 3)", "sympy": "(2*x-3)*(2*x+3)"}],
+   "distractors": [
+     {"error_type": "DIFF_SQUARES", "error_step": 2, "wrong_step_sympy": "(2*x-3)**2", "feedback": "제곱의 차를 차의 제곱처럼 썼어. 제곱의 차는 합과 차의 곱으로 바뀌어. 어떻게 쓸 수 있을까?"},
+     {"error_type": "SQUARE_FORMULA", "error_step": 2, "wrong_step_sympy": "(2*x+3)**2", "feedback": "합의 제곱은 전개하면 가운데 항이 생겨. 이 식에는 가운데 항이 있었나? 다시 봐."},
+     {"error_type": "COEF_COMBINE", "error_step": 2, "wrong_step_sympy": "(4*x-3)*(x+3)", "feedback": "4x²을 4x와 x로 나눈 것 같아. 같은 식의 제곱으로 봐야 하지 않을까?"}]}
+]

@@ -1,0 +1,22 @@
+[
+  {"problem": "(x+3)(x-5)를 전개하시오", "steps_until_error": "없음(첫 단계에서 틀림)",
+   "error_type": "EXPAND_MISSING_TERM", "chosen": "x^2 - 15",
+   "stored": "분배할 때 x×(−5)와 3×x를 빠뜨렸어. 곱해야 할 항은 모두 몇 개일까?",
+   "history": "최근 2번 중 1번",
+   "coaching": "첫 단계에서 곱하는 항이 몇 개 빠진 것 같아. (x+3)에 있는 항 두 개가 (x−5)의 항 두 개와 각각 곱해져야 해. 그러면 곱셈이 모두 몇 번 나와야 할까?"},
+  {"problem": "(x+3)(x-5)를 전개하시오", "steps_until_error": "x·x + x·(−5) + 3·x + 3·(−5) / x² − 5x + 3x − 15",
+   "error_type": "COEF_COMBINE", "chosen": "x^2 + 2x - 15",
+   "stored": "−5x + 3x를 정리할 때 실수했어. −5와 3을 더하면 얼마일까?",
+   "history": "최근 5번 중 3번",
+   "coaching": "곱하는 건 아주 잘했어. 그런데 동류항 −5x와 3x를 합치는 부분에서 계수 계산이 달라진 것 같아. 이런 계산이 요즘 자주 헷갈렸으니까 −5에 3을 더하면 얼마인지 천천히 다시 해볼래?"},
+  {"problem": "(x+4)²을 전개하시오", "steps_until_error": "없음(첫 단계에서 틀림)",
+   "error_type": "SQUARE_FORMULA", "chosen": "x^2 + 16",
+   "stored": "(a+b)²을 a²+b²으로 풀었어. 가운데에 곱해지는 항이 하나 빠지지 않았을까?",
+   "history": "기록 없음",
+   "coaching": "x²과 4²은 잘 구했어. 그런데 (x+4)²은 (x+4)(x+4)니까 곱하는 항이 네 개야. 가운데에 생기는 항이 어디로 갔는지 찾아볼래?"},
+  {"problem": "2x²−8을 인수분해하시오", "steps_until_error": "없음(첫 단계에서 틀림)",
+   "error_type": "FACTOR_INCOMPLETE", "chosen": "2(x^2 - 4)",
+   "stored": "공통인수 2는 잘 묶었어. 그런데 괄호 안의 식을 더 인수분해할 수 있지 않을까?",
+   "history": "최근 3번 중 1번",
+   "coaching": "공통인수 2를 묶은 건 좋았어. 그런데 괄호 안의 x²−4를 가만히 봐. 어떤 공식을 쓰면 더 쪼갤 수 있을까?"}
+]
