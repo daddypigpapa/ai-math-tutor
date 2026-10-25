@@ -4,6 +4,7 @@
 - Claude: 구조화 출력(output_config.format=json_schema). 프리필·temperature 는 보내지 않는다.
 - 프롬프트 캐시: 시스템 프롬프트에 cache_control 을 둔다.
 """
+import base64
 import json
 import time
 from dataclasses import dataclass
@@ -42,12 +43,15 @@ def _key(provider: str) -> str:
     return config.env("ANTHROPIC_API_KEY" if provider == "claude" else "GEMINI_API_KEY")
 
 
-def _claude(t: dict, system: str, user: str, schema: dict | None, timeout: float, key: str, max_tokens: int):
+def _claude(t: dict, system: str, user: str, schema: dict | None, timeout: float, key: str, max_tokens: int,
+            images: list):
+    content = [{"type": "image", "source": {"type": "base64", "media_type": m, "data": base64.b64encode(b).decode()}}
+               for m, b in images] + [{"type": "text", "text": user}] if images else user
     body = {
         "model": t["model"],
         "max_tokens": max_tokens,
         "system": [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
-        "messages": [{"role": "user", "content": user}],
+        "messages": [{"role": "user", "content": content}],
     }
     oc: dict = {}
     if schema:
@@ -69,7 +73,8 @@ def _claude(t: dict, system: str, user: str, schema: dict | None, timeout: float
     return text, tin, u.get("output_tokens", 0), j.get("stop_reason", "")
 
 
-def _gemini(t: dict, system: str, user: str, schema: dict | None, timeout: float, key: str, max_tokens: int):
+def _gemini(t: dict, system: str, user: str, schema: dict | None, timeout: float, key: str, max_tokens: int,
+            images: list):
     gen: dict = {"maxOutputTokens": max_tokens}
     if schema:
         gen["responseMimeType"] = "application/json"
@@ -77,7 +82,8 @@ def _gemini(t: dict, system: str, user: str, schema: dict | None, timeout: float
         gen["thinkingConfig"] = {"thinkingBudget": t["thinking_budget"]}
     body = {
         "systemInstruction": {"parts": [{"text": system}]},
-        "contents": [{"role": "user", "parts": [{"text": user}]}],
+        "contents": [{"role": "user", "parts": [
+            {"inline_data": {"mime_type": m, "data": base64.b64encode(b).decode()}} for m, b in images] + [{"text": user}]}],
         "generationConfig": gen,
     }
     r = httpx.post(
@@ -97,8 +103,9 @@ def _gemini(t: dict, system: str, user: str, schema: dict | None, timeout: float
 
 def call(conn, task: str, system: str, user: str, *, schema: dict | None = None,
          learner_id: int | None = None, attempt_id: int | None = None, problem_id: str | None = None,
-         timeout: float = 60.0, prompt_version: str = "", max_tokens: int | None = None) -> Result:
-    """task 이름으로 config.toml 의 제공자·모델을 골라 호출하고 ai_calls 에 기록한다."""
+         timeout: float = 60.0, prompt_version: str = "", max_tokens: int | None = None,
+         images: list[tuple[str, bytes]] | None = None) -> Result:
+    """task 이름으로 config.toml 의 제공자·모델을 골라 호출하고 ai_calls 에 기록한다. images: [(mime, 바이트)]."""
     t = config.task(task)
     provider = t["provider"]
     key = _key(provider)
@@ -111,12 +118,12 @@ def call(conn, task: str, system: str, user: str, *, schema: dict | None = None,
     try:
         fn = _claude if provider == "claude" else _gemini
         try:
-            text, tin, tout, stop = fn(t, system, user, schema, timeout, key, mt)
+            text, tin, tout, stop = fn(t, system, user, schema, timeout, key, mt, images or [])
         except (httpx.ConnectError, httpx.ReadError, httpx.RemoteProtocolError):
             if timeout < 30:          # 실시간 코칭(5초 제한)은 재시도하지 않고 바로 저장 문장으로 대체
                 raise
             time.sleep(1.5)           # 생성·보고서 같은 느린 호출은 연결이 끊기면 한 번 더 시도
-            text, tin, tout, stop = fn(t, system, user, schema, timeout, key, mt)
+            text, tin, tout, stop = fn(t, system, user, schema, timeout, key, mt, images or [])
         res = Result(True, text=text, input_tokens=tin, output_tokens=tout, stop_reason=stop)
         if provider == "claude" and stop == "refusal":
             res.ok, res.fail_reason = False, "refusal"
@@ -137,7 +144,7 @@ def call(conn, task: str, system: str, user: str, *, schema: dict | None = None,
         "INSERT INTO ai_calls(learner_id,attempt_id,problem_id,purpose,provider,model,prompt_version,prompt,response,"
         "input_tokens,output_tokens,ms,ok,fail_reason,at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         (learner_id, attempt_id, problem_id, task, provider, t["model"], prompt_version,
-         f"[시스템]\n{system}\n\n[사용자]\n{user}", res.text, res.input_tokens, res.output_tokens, res.ms,
+         f"[시스템]\n{system}\n\n[사용자]\n{user}" + (f"\n[이미지 {len(images)}장]" if images else ""), res.text, res.input_tokens, res.output_tokens, res.ms,
          1 if res.ok else 0, res.fail_reason or None, db.now()),
     )
     conn.commit()

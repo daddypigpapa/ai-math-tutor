@@ -29,7 +29,7 @@ app/       main.py(라우트) db.py learn.py(흐름·채점) stats.py(정답률�
            report.py(주간 보고서·디스코드) llm.py(Claude/Gemini 호출·ai_calls) parent.py(부모 API)
            problems.py(문제 JSON·색인) taxonomy.py(단원·실수유형 사전) prompts.py config.py
 pipeline/  generate.py(자료 생성·AI 문제·복습 준비) verify.py(sympy 검증) run.py(CLI) seed.py(시작 문제)
-prompts/   generate_v1 repair_v1 newproblem_v1 convert_v1 coach_v1 step_help_v1 report_v1 judge_*_v1 + examples/
+prompts/   generate_v1 repair_v1 newproblem_v1 convert_v1 ocr_v1 coach_v1 step_help_v1 report_v1 judge_*_v1 + examples/
 web/       learn.html parent.html app.js parent.js style.css katex/(로컬 복사본)
 seed/      손으로 쓴 시작 문제 12개 (전개 7 + 인수분해 5)  →  problems/ 로 검증 후 반영
 problems/  검증 통과한 문제 JSON (시작 12개 + AI가 만든 인수분해 5개 f01~f05)
@@ -40,6 +40,7 @@ config.toml  점수·임계값·하루 목표·작업별 AI 제공자/모델·�
 ## 자주 쓰는 명령
 
 ```powershell
+.\.venv\Scripts\python.exe -m pipeline.run ocr <사진 또는 폴더>   # 문제집 사진 → input/ocr-<사진이름>.json (Gemini 3.1 Flash-Lite)
 .\.venv\Scripts\python.exe -m pipeline.run process            # input/*.json (문제집 문제) → problems/
 .\.venv\Scripts\python.exe -m pipeline.run generate --count 5 # AI가 새 문제 생성·검증
 .\.venv\Scripts\python.exe -m pipeline.run reindex            # problems/ → DB 색인
@@ -55,6 +56,11 @@ config.toml  점수·임계값·하루 목표·작업별 AI 제공자/모델·�
   "question": "다음 식을 전개하시오. $(x+3)(x-5)$", "latex": "(x+3)(x-5)", "sympy": "(x+3)*(x-5)"}]
 ```
 `sympy` 를 생략하면 Claude(가벼운 모델)가 `latex` 를 sympy 식으로 변환한다.
+
+**사진으로 입력하기 (`ocr`)**: 식 하나를 전개·인수분해·계산하는 문제만 옮기고, 조건부 값·객관식·미지수 구하기·그림 문제는 건너뛴다(이유를 출력).
+번호(`no`)는 기존 input 과 DB 의 문제집 번호 뒤에 잇는다. 같은 사진의 파일이 이미 있으면 다시 읽지 않는다(다시 하려면 그 파일을 지운다).
+**OCR 오독은 sympy 검증이 잡지 못한다**(식이 바뀌어도 '맞는 문제'가 된다) — `process` 전에 JSON 의 `latex` 를 원본 사진과 대조한다(`label` 이 원문 번호).
+2026-10-25 실측: 스크린샷 3쪽에서 21문제 식 오독 0건, 건너뜀 13건 분류 모두 맞음, 장당 약 $0.0017(3~4초).
 
 ## 명세와 다르게 한 곳 / 명세에 없어 정한 곳 (가정)
 
@@ -73,7 +79,7 @@ config.toml  점수·임계값·하루 목표·작업별 AI 제공자/모델·�
 
 ## 1차에서 하지 않은 것 (명세 1·13절)
 
-도형·그래프 문제, 문제집 스캔/PDF 전처리(13절 세부과제), 12절 6단계(문제 확대·단원 추가).
+도형·그래프 문제, PDF 전처리(사진 OCR 은 `pipeline.run ocr` 로 추가됨. 휴대폰 촬영 사진은 미검증), 12절 6단계(문제 확대·단원 추가).
 집 밖 접속(Tailscale)·학습자 추가는 구조만 있다: 학습자는 부모 화면 설정 또는 `learners` 한 줄, 첫 화면은 이름 버튼.
 
 ## 남은 일 (명세 13절 "남은 일")

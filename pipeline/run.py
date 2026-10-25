@@ -3,11 +3,12 @@
   python -m pipeline.run process [--force] [--only m3-poly-0003]
   python -m pipeline.run generate --unit m3-poly --count 5 [--difficulty 1] [--error-type SIGN]
   python -m pipeline.run reindex
+  python -m pipeline.run ocr <사진 또는 폴더...> [--unit m3-poly]   # 문제집 사진 → input/ocr-*.json
 """
 import argparse
 
 from app import db, problems
-from pipeline import generate
+from pipeline import generate, ocr
 
 
 def main() -> None:
@@ -22,6 +23,9 @@ def main() -> None:
     g.add_argument("--difficulty", type=int, default=1)
     g.add_argument("--error-type")
     sub.add_parser("reindex", help="problems/ 의 JSON 을 DB 에 다시 색인")
+    o = sub.add_parser("ocr", help="문제집 사진을 읽어 input/ocr-<사진이름>.json 을 만든다 (원본과 대조 후 process)")
+    o.add_argument("paths", nargs="+")
+    o.add_argument("--unit", default="m3-poly")
     a = ap.parse_args()
 
     conn = db.connect()
@@ -30,6 +34,10 @@ def main() -> None:
         res = generate.process_input_dir(conn, force=a.force, only=a.only)
     elif a.cmd == "generate":
         res = generate.make_ai_problems(conn, a.unit, a.count, difficulty=a.difficulty, focus=a.error_type)
+    elif a.cmd == "ocr":
+        files = ocr.run(conn, a.paths, a.unit)
+        print(f"완료: {len(files)}개 파일 작성. 원본 사진과 대조한 뒤 process 를 실행한다")
+        return
     else:
         print(problems.reindex_all(conn), "개 색인")
         return
