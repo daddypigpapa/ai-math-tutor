@@ -55,6 +55,10 @@ def error_name(code: str) -> str:
     return code
 
 
+def error_example(code: str) -> str:
+    return next((ex for c, _, ex in ERROR_TYPES if c == code), "")
+
+
 def unit_name(code: str) -> str:
     for c, n, _ in UNITS:
         if c == code:

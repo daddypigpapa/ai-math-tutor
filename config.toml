@@ -51,6 +51,12 @@ max_tokens = 8000
 effort = "medium"
 prompt = "repair_v1"
 
+[tasks.review]             # 검증 통과 뒤 오답 검토: 학생에게 보일 값까지 보고 그럴듯함·유형 일치 판정 (생성과 다른 모델)
+provider = "claude"
+model = "claude-haiku-5-5"
+max_tokens = 3000          # 답하기 전 생각에 ~1000 토큰을 쓴다(실측). 1500 이면 거부 사유를 쓰다 잘렸다
+prompt = "review_v1"
+
 [tasks.newproblem]         # AI 문제 원문 생성
 provider = "claude"
 model = "claude-sonnet-5-5"
@@ -84,7 +90,7 @@ prompt = "report_v1"
 
 [tasks.judge_generate]     # 평가: 생성 오답의 타당성 채점 (생성 모델과 다른 모델)
 provider = "gemini"
-model = "gemini-2.5-flash"
+model = "gemini-3.8-flash"  # 2026-10-25 gemini-2.5-flash 가 404("no longer available to new users")로 막혀 교체
 max_tokens = 2000
 thinking_budget = 0        # 채점은 짧은 JSON 이라 사고 토큰을 쓰지 않는다(쓰면 응답이 잘림)
 prompt = "judge_generate_v1"

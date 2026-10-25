@@ -49,6 +49,12 @@ CONVERT_SCHEMA = {
     "type": "object", "additionalProperties": False, "required": ["sympy"],
     "properties": {"sympy": {"type": "string"}},
 }
+REVIEW_SCHEMA = {
+    "type": "object", "additionalProperties": False, "required": ["reviews"],
+    "properties": {"reviews": {"type": "array", "items": {
+        "type": "object", "additionalProperties": False, "required": ["index", "ok", "reason"],
+        "properties": {"index": {"type": "integer"}, "ok": {"type": "boolean"}, "reason": {"type": "string"}}}}},
+}
 
 
 def _taxonomy_text(unit: str) -> str:
@@ -115,6 +121,31 @@ def _user_message(meta: dict, latex: str, focus: str | None, allowed: list[str])
                         focus=f"<focus_error_type>{focus}</focus_error_type>\n" if focus else "")
 
 
+def review_distractors(conn, problem: dict) -> list[dict]:
+    """검증을 통과한 오답을 생성과 다른 모델이 '학생에게 보일 값'까지 보고 검토한다(생성 모델은 그 값을 못 본다).
+    거부된 오답만 이슈로 돌려준다. 호출이 실패하면 검토 없이 통과시킨다 — 생성을 막지 않는다."""
+    if problem["status"] != "verified":    # unsuitable 은 이슈 없이 오지만 보기가 없다
+        return []
+    t = config.task("review")
+    system, tpl = prompts.load(t["prompt"])
+    wrong = [c for c in problem["choices"] if not c["correct"]]
+    items = "\n".join(
+        f'<distractor index="{i}" error_type="{c["error_type"]}" error_name="{taxonomy.error_name(c["error_type"])}" '
+        f'error_step="{c["error_step"]}"><definition>{taxonomy.DEFINITIONS.get(c["error_type"], "")}</definition>'
+        f'<example>{taxonomy.error_example(c["error_type"])}</example>'
+        f'<wrong_step>{c["wrong_step_sympy"]}</wrong_step><shown_value>{c["value"]}</shown_value></distractor>'
+        for i, c in enumerate(wrong))
+    user = prompts.fill(tpl, question=problem["question"], answer=problem["answer"],
+                        steps="\n".join(f"{i}. {s['text']}" for i, s in enumerate(problem["steps"], 1)), distractors=items)
+    r = _call_with_token_retry(conn, "review", system, user, REVIEW_SCHEMA, problem_id=problem["id"],
+                               prompt_version=t["prompt"])
+    if not r.ok or not r.data:
+        return []
+    return [verify.issue("review_rejected", f"distractors[{v['index']}]", "학생이 실제로 낼 만하고 유형 정의에 맞는 오답",
+                         v["reason"])
+            for v in r.data.get("reviews", []) if not v.get("ok", True) and 0 <= v.get("index", -1) < len(wrong)]
+
+
 def _repair_message(prev: dict, issues: list[dict]) -> str:
     _, tpl = prompts.load(config.task("repair")["prompt"])
     return prompts.fill(tpl, previous_output=json.dumps(prev, ensure_ascii=False),
@@ -153,6 +184,8 @@ def process_item(conn, item: dict, *, focus: str | None = None, log=print) -> di
         return _save_failed(conn, meta, r.fail_reason or "llm_failed", "자료 생성 호출 실패")
     out = r.data
     problem, issues = verify.build_problem(meta, out)
+    if not issues:
+        issues = review_distractors(conn, problem)
     tries = 0
     while issues and tries < MAX_REPAIRS:
         tries += 1
@@ -163,6 +196,11 @@ def process_item(conn, item: dict, *, focus: str | None = None, log=print) -> di
             break
         out = rr.data
         problem, issues = verify.build_problem(meta, out)
+        if not issues:
+            issues = review_distractors(conn, problem)
+    if issues and problem["status"] == "verified":   # 검증은 통과했지만 검토에서 끝내 거부 → 부모 '검토 필요'
+        problem["draft"] = out
+        problem, _ = verify._fail(problem, issues)
     problem["repair_tries"] = tries
     problems.save_and_index(conn, problem)
     log(f"  [{item['id']}] → {problem['status']} {problem.get('status_reason', '')}")
