@@ -40,12 +40,12 @@
       "feedback": "가운데 항이 마이너스니까 괄호 안의 부호도 마이너스여야 하지 않을까? 부호를 다시 봐."
     },
     {
-      "value": "(x - 5)(x + 5)",
+      "value": "(x - 1)(x - 25)",
       "correct": false,
-      "error_type": "DIFF_SQUARES",
+      "error_type": "FACTOR_PAIR",
       "error_step": 2,
-      "wrong_step_sympy": "(x-5)*(x+5)",
-      "feedback": "합차공식과 완전제곱식을 헷갈렸어. 이 식에 가운데 항이 있는지 보고 어떤 꼴인지 다시 판단해 봐."
+      "wrong_step_sympy": "(x-1)*(x-25)",
+      "feedback": "곱해서 25가 되는 두 수는 골랐는데, 더해서 −10이 되는지도 확인해 봐."
     },
     {
       "value": "(x - 10)^2",

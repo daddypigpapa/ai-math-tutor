@@ -16,7 +16,7 @@ JOBS: dict[str, dict] = {}   # 부모 화면에서 보는 백그라운드 작업
 
 # ---- 스키마·프롬프트 -----------------------------------------------------
 
-def generation_schema(unit: str) -> dict:
+def generation_schema(error_codes: list[str]) -> dict:
     return {
         "type": "object", "additionalProperties": False,
         "required": ["status", "reason", "hint", "intent", "steps", "distractors"],
@@ -32,7 +32,7 @@ def generation_schema(unit: str) -> dict:
                 "type": "object", "additionalProperties": False,
                 "required": ["error_type", "error_step", "wrong_step_sympy", "feedback"],
                 "properties": {
-                    "error_type": {"type": "string", "enum": taxonomy.error_codes(unit)},
+                    "error_type": {"type": "string", "enum": error_codes},
                     "error_step": {"type": "integer"},
                     "wrong_step_sympy": {"type": "string"},
                     "feedback": {"type": "string"}}}},
@@ -55,7 +55,7 @@ def _taxonomy_text(unit: str) -> str:
     lines = []
     for c, n, ex in taxonomy.ERROR_TYPES:
         if c in taxonomy.error_codes(unit):
-            lines.append(f"- {c} ({n}): 예 {ex}")
+            lines.append(f"- {c} ({n}): {taxonomy.DEFINITIONS[c]}. 예 {ex}")
     return "\n".join(lines)
 
 
@@ -108,10 +108,10 @@ def new_problem_text(conn, unit: str, difficulty: int, answer_form: str, existin
     return r.data if r.ok else None
 
 
-def _user_message(meta: dict, latex: str, focus: str | None) -> str:
+def _user_message(meta: dict, latex: str, focus: str | None, allowed: list[str]) -> str:
     _, tpl = prompts.load(config.task("generate")["prompt"])
     return prompts.fill(tpl, unit=meta["unit"], difficulty=meta["difficulty"], answer_form=meta["answer_form"],
-                        latex=latex, sympy=meta["original_sympy"],
+                        latex=latex, sympy=meta["original_sympy"], allowed_error_types=", ".join(allowed),
                         focus=f"<focus_error_type>{focus}</focus_error_type>\n" if focus else "")
 
 
@@ -140,13 +140,14 @@ def process_item(conn, item: dict, *, focus: str | None = None, log=print) -> di
         return _save_failed(conn, meta, "convert_failed", "원문→sympy 변환 실패(키 없음·응답 실패)")
     meta["original_sympy"] = sym
     try:
-        verify.parse(sym)
+        e0 = verify.parse(sym)
     except verify.ParseError as e:
         return _save_failed(conn, meta, "sympy_parse_error", str(e))
 
     system = system_prompt(unit)
-    schema = generation_schema(unit)
-    r = _call_with_token_retry(conn, "generate", system, _user_message(meta, latex, focus), schema,
+    allowed = verify.applicable_error_types(e0, meta["answer_form"], unit)
+    schema = generation_schema(allowed)
+    r = _call_with_token_retry(conn, "generate", system, _user_message(meta, latex, focus, allowed), schema,
                                problem_id=item["id"], prompt_version=pv)
     if not r.ok:
         return _save_failed(conn, meta, r.fail_reason or "llm_failed", "자료 생성 호출 실패")

@@ -42,7 +42,7 @@ provider = "claude"
 model = "claude-sonnet-5-5"
 max_tokens = 8000
 effort = "medium"
-prompt = "generate_v2"
+prompt = "generate_v3"
 
 [tasks.repair]             # 검증 실패 항목 부분 수정
 provider = "claude"

@@ -48,12 +48,12 @@
       "feedback": "두 수의 부호를 다시 봐. 곱이 음수가 되려면 두 수의 부호가 어떻게 되어야 할까?"
     },
     {
-      "value": "(x - 5)(x - 3)",
+      "value": "(x + 1)(x - 15)",
       "correct": false,
-      "error_type": "COEF_COMBINE",
+      "error_type": "FACTOR_PAIR",
       "error_step": 2,
-      "wrong_step_sympy": "(x-5)*(x-3)",
-      "feedback": "고른 두 수의 합이 −2가 되는지 계산해 봐. 곱도 −15가 되는지 같이 확인해 보자."
+      "wrong_step_sympy": "(x+1)*(x-15)",
+      "feedback": "곱해서 −15가 되는 두 수는 골랐는데, 더해서 −2가 되는지도 확인해 봐."
     }
   ]
 }

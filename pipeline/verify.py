@@ -93,6 +93,71 @@ def same_form(a_str: str, b_expr) -> bool:
     return canon(parse(a_str, evaluate=False)) == canon(b_expr)
 
 
+# ---- 적용 가능한 실수유형 -------------------------------------------------
+# 서로 다른 유형 3개를 채우려다 문제에 없는 실수(공통인수가 없는 식에 FACTOR_COMMON 등)를 붙이는 일이 많았다
+# (2026-10-25 평가: FACTOR_COMMON 9/12, COEF_COMBINE 6/17 탈락). 문제 구조로 고를 수 있는 유형을 정한다.
+
+def _raw_terms(e) -> list:
+    """분배만 하고 동류항은 묶지 않은 항 목록."""
+    if e.is_Add:
+        return [t for a in e.args for t in _raw_terms(a)]
+    if e.is_Mul:
+        out = [sp.Integer(1)]
+        for a in e.args:
+            out = [p * q for p in out for q in _raw_terms(a)]
+        return out
+    if e.is_Pow and e.exp.is_Integer and int(e.exp) > 1 and e.base.is_Add:
+        return _raw_terms(sp.Mul(*[e.base] * int(e.exp), evaluate=False))
+    return [e]
+
+
+def _n_terms(e) -> int:
+    return len(sp.Add.make_args(sp.expand(e)))
+
+
+def _conjugate_pair(factors: list) -> bool:
+    """(a+b)(a−b) 처럼 곱하면 두 항만 남는 이항식 쌍이 있는가."""
+    bins = [f for f in factors if _n_terms(f) == 2]
+    return any(_n_terms(f * g) == 2 for i, f in enumerate(bins) for g in bins[i + 1:])
+
+
+def applicable_error_types(e0, form: str, unit: str) -> list[str]:
+    codes = taxonomy.error_codes(unit)
+    if form == "expanded":
+        terms = _raw_terms(e0)
+        adds = [a for n in sp.preorder_traversal(e0) if n.is_Mul for a in n.args if a.is_Add]
+        square = any(n.is_Pow and n.exp == 2 and n.base.is_Add for n in sp.preorder_traversal(e0))
+        ok = {"SIGN", "EXPAND_MISSING_TERM", "MULT_CALC"}
+        if len({t.as_coeff_Mul()[1] for t in terms}) < len(terms):
+            ok.add("COEF_COMBINE")
+        if square:
+            ok.add("SQUARE_FORMULA")
+        if square or _conjugate_pair(adds):
+            ok.add("DIFF_SQUARES")
+    elif form == "factored":
+        content, facs = sp.factor_list(e0)
+        polys = [f for f, m in facs if not f.is_Symbol]
+        ok = {"SIGN"}
+        ans = sp.factor(e0)
+        flip = flipped_sign_form(ans)
+        if flip is not None and flip != canon(ans):
+            ok.add("FACTOR_SIGN")
+        if (content.is_Integer and abs(content) != 1) or any(f.is_Symbol for f, _ in facs):
+            ok.add("FACTOR_COMMON")
+        if (abs(content) != 1) + sum(m for _, m in facs) >= 3:
+            ok.add("FACTOR_INCOMPLETE")
+        if _conjugate_pair(polys):
+            ok.update({"DIFF_SQUARES", "MULT_CALC"})
+        if any(m >= 2 for f, m in facs if not f.is_Symbol):
+            ok.add("SQUARE_FORMULA")   # 완전제곱식의 MULT_CALC 는 (x+14)(x+49) 같은 엉뚱한 꼴만 나왔다
+        prim = sp.expand(sp.Mul(*[f ** m for f, m in facs if not f.is_Symbol]))
+        if _n_terms(prim) == 3 and sp.Poly(prim).total_degree() == 2:
+            ok.add("FACTOR_PAIR")
+    else:
+        return codes
+    return [c for c in codes if c in ok]
+
+
 # ---- 표시 문자열 --------------------------------------------------------
 
 def norm_display(s: str) -> str:
@@ -207,6 +272,7 @@ def build_problem(meta: dict, out: dict) -> tuple[dict, list[dict]]:
     if len(set(types)) != len(types):
         issues.append(issue("error_type_duplicate", "distractors[].error_type", "서로 다름", types))
     valid_codes = set(taxonomy.error_codes(meta["unit"]))
+    applicable = applicable_error_types(e0, form, meta["unit"])
 
     ans_text = answer_text(ans)
     seen_text = {ans_text}
@@ -217,6 +283,8 @@ def build_problem(meta: dict, out: dict) -> tuple[dict, list[dict]]:
         fld = f"distractors[{i}]"
         if d.get("error_type") not in valid_codes:
             issues.append(issue("unknown_error_type", f"{fld}.error_type", sorted(valid_codes), d.get("error_type")))
+        elif d.get("error_type") not in applicable:
+            issues.append(issue("error_type_not_applicable", f"{fld}.error_type", applicable, d.get("error_type")))
         es = d.get("error_step")
         if not isinstance(es, int) or not (1 <= es <= max(len(steps), 1)):
             issues.append(issue("error_step_range", f"{fld}.error_step", f"1..{len(steps)}", es))
@@ -249,6 +317,11 @@ def build_problem(meta: dict, out: dict) -> tuple[dict, list[dict]]:
             if flip is not None and canon(parse(w, evaluate=False)) != flip:
                 issues.append(issue("error_type_mismatch", f"{fld}.error_type",
                                     "FACTOR_SIGN 은 올바른 인수에서 각 인수의 상수항 부호만 반대로 쓴 꼴이어야 함", text))
+        if form == "factored" and d.get("error_type") == "FACTOR_PAIR":
+            diff = sp.expand(parse(w) - e0)
+            if diff == 0 or len(sp.Add.make_args(diff)) != 1:
+                issues.append(issue("error_type_mismatch", f"{fld}.error_type",
+                                    "FACTOR_PAIR 는 곱(상수항)과 합(가운데 항 계수) 중 한 조건만 틀려야 함", text))
         if is_ans:
             issues.append(issue("distractor_equals_answer", f"{fld}.wrong_step_sympy", f"≠ {ans_text}", text))
         elif dup:

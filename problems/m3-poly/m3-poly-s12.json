@@ -42,15 +42,15 @@
     {
       "value": "(2x + 3)^2",
       "correct": false,
-      "error_type": "SQUARE_FORMULA",
+      "error_type": "SIGN",
       "error_step": 2,
       "wrong_step_sympy": "(2*x+3)**2",
-      "feedback": "합의 제곱은 전개하면 가운데 항이 생겨. 이 식에는 가운데 항이 있었나? 다시 봐."
+      "feedback": "두 괄호의 부호를 다시 봐. 같은 부호끼리 곱하면 가운데 항이 생기는데, 이 식에는 가운데 항이 있었나?"
     },
     {
       "value": "(4x - 3)(x + 3)",
       "correct": false,
-      "error_type": "COEF_COMBINE",
+      "error_type": "MULT_CALC",
       "error_step": 2,
       "wrong_step_sympy": "(4*x-3)*(x+3)",
       "feedback": "4x²을 4x와 x로 나눈 것 같아. 같은 식의 제곱으로 봐야 하지 않을까?"

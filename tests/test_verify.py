@@ -162,6 +162,37 @@ def test_factor_sign_must_be_a_sign_flip():
     assert not issues
 
 
+@pytest.mark.parametrize("form,expr,yes,no", [
+    ("factored", "x**2+7*x+12", {"FACTOR_SIGN", "FACTOR_PAIR"}, {"FACTOR_COMMON", "COEF_COMBINE", "DIFF_SQUARES"}),
+    ("factored", "x**2-16", {"DIFF_SQUARES", "MULT_CALC"}, {"FACTOR_SIGN", "FACTOR_COMMON", "FACTOR_PAIR"}),
+    ("factored", "x**2+14*x+49", {"SQUARE_FORMULA", "FACTOR_PAIR"}, {"DIFF_SQUARES", "FACTOR_COMMON"}),
+    ("factored", "x**3-4*x", {"FACTOR_COMMON", "FACTOR_INCOMPLETE", "DIFF_SQUARES"}, {"FACTOR_PAIR"}),
+    ("expanded", "-2*x*(x-4)", {"EXPAND_MISSING_TERM", "MULT_CALC"}, {"COEF_COMBINE", "SQUARE_FORMULA", "FACTOR_COMMON"}),
+    ("expanded", "(x+1)*(x**2-x+1)", {"COEF_COMBINE"}, {"DIFF_SQUARES"}),
+    ("expanded", "(3*x+4)*(3*x-4)", {"DIFF_SQUARES", "COEF_COMBINE"}, {"SQUARE_FORMULA"}),
+])
+def test_applicable_error_types_follow_problem_structure(form, expr, yes, no):
+    got = set(verify.applicable_error_types(verify.parse(expr), form, "m3-poly"))
+    assert yes <= got and not (no & got), got
+    assert len(got) >= 3                     # 서로 다른 유형 3개를 채울 수 있어야 한다
+
+
+def test_error_type_not_applicable_is_flagged():
+    def m(out):
+        out["distractors"][2]["error_type"] = "FACTOR_COMMON"           # x²−2x−15 에는 공통인수가 없다
+    _, issues = _build(_item("m3-poly-s08"), m)
+    assert "error_type_not_applicable" in codes(issues)
+
+
+def test_factor_pair_must_miss_exactly_one_condition():
+    def bad(out):
+        out["distractors"][1]["wrong_step_sympy"] = "(x-2)*(x-7)"      # x²−10x+25: 곱 14·합 −9 둘 다 틀림
+    _, issues = _build(_item("m3-poly-s11"), bad)
+    assert "error_type_mismatch" in codes(issues)
+    p, issues = _build(_item("m3-poly-s11"))                          # (x−1)(x−25): 곱 25만 맞음
+    assert not issues and p["status"] == "verified"
+
+
 def test_norm_display_keeps_trailing_number_product_readable():
     assert verify.norm_display("(2*x+5)*(2*x+5)*2") == "(2x + 5)(2x + 5)\cdot 2"
     assert verify.norm_display("2*3") == "2\cdot 3"

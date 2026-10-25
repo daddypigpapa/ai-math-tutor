@@ -22,5 +22,11 @@
    "feedback": "공통인수 2는 잘 묶었어. 그런데 괄호 안의 식을 더 인수분해할 수 있지 않을까?"},
   {"error_type": "FACTOR_COMMON", "question": "3x^2+6x 인수분해", "error_step": 1,
    "wrong_step_sympy": "x*(3*x+6)",
-   "feedback": "x는 묶었지만 3과 6의 공약수는 그대로 남겼어. 가장 큰 공통인수를 다시 찾아볼래?"}
+   "feedback": "x는 묶었지만 3과 6의 공약수는 그대로 남겼어. 가장 큰 공통인수를 다시 찾아볼래?"},
+  {"error_type": "MULT_CALC", "question": "(3x+4)(3x-4) 전개", "error_step": 1,
+   "wrong_step_sympy": "3*x**2 - 4**2",
+   "feedback": "(3x)²을 계산할 때 3도 제곱해야 해. 3x를 두 번 곱하면 계수가 얼마가 될까?"},
+  {"error_type": "FACTOR_PAIR", "question": "x^2-9x+20 인수분해", "error_step": 1,
+   "wrong_step_sympy": "(x-3)*(x-6)",
+   "feedback": "두 수를 더하면 −9는 맞는데, 곱이 20이 되는지도 확인해 봐."}
 ]

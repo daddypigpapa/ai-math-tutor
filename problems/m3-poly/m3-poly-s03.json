@@ -50,7 +50,7 @@
     {
       "value": "x^2 - 10",
       "correct": false,
-      "error_type": "COEF_COMBINE",
+      "error_type": "MULT_CALC",
       "error_step": 2,
       "wrong_step_sympy": "x**2 - 10",
       "feedback": "5²을 계산하는 부분이 이상해. 5²은 5를 몇 번 곱한 걸까?"

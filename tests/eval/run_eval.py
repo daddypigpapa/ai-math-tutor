@@ -1,6 +1,7 @@
 """평가 세트 실행·채점 (명세 12절 0·1단계). 프롬프트나 모델을 바꿀 때마다 전체를 다시 돌려 결과를 비교한다.
 
-  python -m tests.eval.run_eval [--limit N] [--judge] [--compare 이전결과.json]
+  python -m tests.eval.run_eval [--limit N] [--judge] [--judge-prompt 이름] [--compare 이전결과.json]
+  python -m tests.eval.run_eval --rejudge 결과폴더 [--judge-prompt 이름]   # 생성 없이 기존 결과만 다시 채점
 
 채점 기준 (초안, 1단계 결과를 보고 조정)
   생성-1  재시도 2회 안에 검증 통과 95% 이상            → 코드 (이슈 코드 집계)   [tricky 중 expect 가 있는 항목은 제외]
@@ -23,20 +24,61 @@ sys.path.insert(0, str(ROOT))
 HERE = Path(__file__).resolve().parent
 
 
+def judge(conn, passed: list[dict], prompt_name: str) -> tuple[list[dict], int]:
+    """통과한 문제의 오답마다 채점. 실패한 호출도 분모(total)에 넣는다 — 성공분만 세면 비율이 부풀려진다."""
+    from app import config, llm, prompts, taxonomy
+    system, tpl = prompts.load(prompt_name)
+    scores, total = [], 0
+    for r in passed:
+        prob = json.loads((config.problems_dir() / "m3-poly" / f"{r['id']}.json").read_text(encoding="utf-8"))
+        for c in prob["choices"]:
+            if c["correct"]:
+                continue
+            total += 1
+            user = prompts.fill(tpl, problem=prob["question"], error_type=c["error_type"],
+                                error_name=taxonomy.error_name(c["error_type"]), error_step=c["error_step"],
+                                wrong_step=c["wrong_step_sympy"], value=c["value"])
+            res = llm.call(conn, "judge_generate", system, user, prompt_version=prompt_name, schema={
+                "type": "object", "additionalProperties": False, "required": ["score", "reason"],
+                "properties": {"score": {"type": "integer"}, "reason": {"type": "string"}}})
+            if res.ok and res.data:
+                scores.append({"id": r["id"], "error_type": c["error_type"], "score": res.data["score"], "reason": res.data["reason"]})
+    return scores, total
+
+
+def plausibility(scores: list[dict], total: int) -> dict:
+    good = sum(1 for s in scores if s["score"] >= 4)
+    rate = good / total if total else None
+    return {"plausibility_rate": rate, "plausibility_ok": bool(total) and rate >= 0.90,
+            "plausibility_judged": len(scores), "plausibility_total": total}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int)
     ap.add_argument("--judge", action="store_true")
+    ap.add_argument("--judge-prompt")
+    ap.add_argument("--rejudge")
     ap.add_argument("--compare")
     a = ap.parse_args()
 
-    out_dir = HERE / "results" / datetime.now().strftime("%Y%m%d-%H%M%S")
+    out_dir = Path(a.rejudge) if a.rejudge else HERE / "results" / datetime.now().strftime("%Y%m%d-%H%M%S")
     out_dir.mkdir(parents=True, exist_ok=True)
     os.environ["TUTOR_DB"] = str(out_dir / "eval.db")
     os.environ["TUTOR_PROBLEMS"] = str(out_dir / "problems")
 
-    from app import config, db, llm, prompts, taxonomy
+    from app import config, db
     from pipeline import generate
+    judge_prompt = a.judge_prompt or config.task("judge_generate")["prompt"]
+
+    if a.rejudge:
+        conn = db.connect()
+        rows = json.loads((out_dir / "results.json").read_text(encoding="utf-8"))["rows"]
+        passed = [r for r in rows if not r["expect"] and r["status"] == "verified" and r["repairs"] <= generate.MAX_REPAIRS]
+        scores, total = judge(conn, passed, judge_prompt)
+        (out_dir / f"rejudge_{judge_prompt}.json").write_text(json.dumps(scores, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(json.dumps({"judge_prompt": judge_prompt, **plausibility(scores, total)}, ensure_ascii=False, indent=2))
+        return
 
     if not (config.env("ANTHROPIC_API_KEY")):
         sys.exit("ANTHROPIC_API_KEY 가 없어 생성 평가를 돌릴 수 없다 (.env 확인).")
@@ -67,25 +109,8 @@ def main() -> None:
                "issue_counts": dict(issue_counts)}
 
     if a.judge:
-        system, tpl = prompts.load(config.task("judge_generate")["prompt"])
-        scores = []
-        for r in passed:
-            prob = json.loads((config.problems_dir() / "m3-poly" / f"{r['id']}.json").read_text(encoding="utf-8"))
-            for c in prob["choices"]:
-                if c["correct"]:
-                    continue
-                user = prompts.fill(tpl, problem=prob["question"], error_type=c["error_type"],
-                                    error_name=taxonomy.error_name(c["error_type"]), error_step=c["error_step"],
-                                    wrong_step=c["wrong_step_sympy"], value=c["value"])
-                res = llm.call(conn, "judge_generate", system, user, schema={
-                    "type": "object", "additionalProperties": False, "required": ["score", "reason"],
-                    "properties": {"score": {"type": "integer"}, "reason": {"type": "string"}}})
-                if res.ok and res.data:
-                    scores.append({"id": r["id"], "error_type": c["error_type"], "score": res.data["score"], "reason": res.data["reason"]})
-        good = sum(1 for s in scores if s["score"] >= 4)
-        summary["plausibility_rate"] = (good / len(scores)) if scores else None
-        summary["plausibility_ok"] = bool(scores) and good / len(scores) >= 0.90
-        summary["plausibility_judged"] = len(scores)
+        scores, total = judge(conn, passed, judge_prompt)
+        summary.update({"judge_prompt": judge_prompt, **plausibility(scores, total)})
         (out_dir / "judge.json").write_text(json.dumps(scores, ensure_ascii=False, indent=2), encoding="utf-8")
 
     (out_dir / "results.json").write_text(json.dumps({"summary": summary, "rows": rows}, ensure_ascii=False, indent=2), encoding="utf-8")
