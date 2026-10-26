@@ -57,9 +57,9 @@ model = "claude-haiku-5-5"
 max_tokens = 3000          # 답하기 전 생각에 ~1000 토큰을 쓴다(실측). 1500 이면 거부 사유를 쓰다 잘렸다
 prompt = "review_v1"
 
-[tasks.ocr]                # 문제집 사진 → input/ JSON (2026-10-25 실측: 3.5-flash-lite 보다 읽기 순서·지시 준수가 낫고 40% 쌈)
+[tasks.ocr]                # 문제집 사진 → input/ JSON
 provider = "gemini"
-model = "gemini-3.1-flash-lite"
+model = "gemini-3.8-flash"  # 2026-10-26 실측(사진 3장·21문제): 3.8-flash 오독 0, 3.1-flash-lite 는 9z²→z² 1건(실행마다 다름). 장당 17~41초라 코칭 공용 모델과 분리
 max_tokens = 8000
 prompt = "ocr_v1"
 
@@ -77,20 +77,17 @@ max_tokens = 1000
 prompt = "convert_v1"
 
 [tasks.coach]              # (가) 오답 직후 코칭
-provider = "gemini"
-model = "gemini-2.5-flash-lite"
+provider = "gemini"       # model 은 key.env 의 AI_TUTOR_GEMINI_API_MODEL (2.5-flash-lite 는 2026-10-25 404)
 max_tokens = 400
 prompt = "coach_v1"
 
 [tasks.step_help]          # (나) 계산단계 추가 설명
-provider = "gemini"
-model = "gemini-2.5-flash-lite"
+provider = "gemini"       # model 은 key.env 의 AI_TUTOR_GEMINI_API_MODEL
 max_tokens = 400
 prompt = "step_help_v1"
 
 [tasks.report]             # 주간 보고서 문장 연결
-provider = "gemini"
-model = "gemini-2.5-flash-lite"
+provider = "gemini"       # model 은 key.env 의 AI_TUTOR_GEMINI_API_MODEL
 max_tokens = 1200
 prompt = "report_v1"
 
@@ -120,6 +117,9 @@ output = 0.40
 [pricing."gemini-3.1-flash-lite"]   # 2026-10-22 요금표
 input = 0.25
 output = 1.50
+[pricing."gemini-3.8-flash"]        # 2026-10-22 요금표, 2026-12-31 까지 (2027-01 부터 1.50 / 7.50)
+input = 0.75
+output = 3.75
 [pricing."gemini-2.5-flash"]
 input = 0.30
 output = 2.50

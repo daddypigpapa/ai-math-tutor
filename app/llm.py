@@ -40,7 +40,7 @@ class Result:
 
 
 def _key(provider: str) -> str:
-    return config.env("ANTHROPIC_API_KEY" if provider == "claude" else "GEMINI_API_KEY")
+    return config.env("ANTHROPIC_API_KEY" if provider == "claude" else "AI_TUTOR_GEMINI_API_KEY")
 
 
 def _claude(t: dict, system: str, user: str, schema: dict | None, timeout: float, key: str, max_tokens: int,
@@ -106,11 +106,15 @@ def call(conn, task: str, system: str, user: str, *, schema: dict | None = None,
          timeout: float = 60.0, prompt_version: str = "", max_tokens: int | None = None,
          images: list[tuple[str, bytes]] | None = None) -> Result:
     """task 이름으로 config.toml 의 제공자·모델을 골라 호출하고 ai_calls 에 기록한다. images: [(mime, 바이트)]."""
-    t = config.task(task)
+    t = dict(config.task(task))
     provider = t["provider"]
+    if provider == "gemini" and not t.get("model"):   # config.toml 에 model 이 없는 Gemini 작업은 AI_TUTOR_GEMINI_API_MODEL
+        t["model"] = config.env("AI_TUTOR_GEMINI_API_MODEL")
     key = _key(provider)
     if not key:
         return Result(False, fail_reason="no_api_key")
+    if not t.get("model"):
+        return Result(False, fail_reason="no_model")
     prompt_version = prompt_version or t.get("prompt", "")
     mt = max_tokens or t.get("max_tokens", 1000)
     start = time.time()

@@ -13,7 +13,7 @@
 ```powershell
 cd C:\Users\USER\Claude\ai-math-tutor
 .\scripts\setup.ps1 -Learner "아이이름"     # venv, 패키지, KaTeX, DB, 시작 문제 12개
-notepad .env                                 # ANTHROPIC_API_KEY, GEMINI_API_KEY, DISCORD_WEBHOOK_URL, PARENT_PIN
+notepad .env                                 # ANTHROPIC_API_KEY, AI_TUTOR_GEMINI_API_KEY, AI_TUTOR_GEMINI_API_MODEL, DISCORD_WEBHOOK_URL, PARENT_PIN
 .\scripts\run_server.ps1                     # http://localhost:8000  (부모 화면: /parent)
 ```
 
@@ -40,7 +40,7 @@ config.toml  점수·임계값·하루 목표·작업별 AI 제공자/모델·�
 ## 자주 쓰는 명령
 
 ```powershell
-.\.venv\Scripts\python.exe -m pipeline.run ocr <사진 또는 폴더>   # 문제집 사진 → input/ocr-<사진이름>.json (Gemini 3.1 Flash-Lite)
+.\.venv\Scripts\python.exe -m pipeline.run ocr <사진 또는 폴더>   # 문제집 사진 → input/ocr-<사진이름>.json (Gemini 3.8 Flash)
 .\.venv\Scripts\python.exe -m pipeline.run process            # input/*.json (문제집 문제) → problems/
 .\.venv\Scripts\python.exe -m pipeline.run generate --count 5 # AI가 새 문제 생성·검증
 .\.venv\Scripts\python.exe -m pipeline.run reindex            # problems/ → DB 색인
@@ -60,7 +60,7 @@ config.toml  점수·임계값·하루 목표·작업별 AI 제공자/모델·�
 **사진으로 입력하기 (`ocr`)**: 식 하나를 전개·인수분해·계산하는 문제만 옮기고, 조건부 값·객관식·미지수 구하기·그림 문제는 건너뛴다(이유를 출력).
 번호(`no`)는 기존 input 과 DB 의 문제집 번호 뒤에 잇는다. 같은 사진의 파일이 이미 있으면 다시 읽지 않는다(다시 하려면 그 파일을 지운다).
 **OCR 오독은 sympy 검증이 잡지 못한다**(식이 바뀌어도 '맞는 문제'가 된다) — `process` 전에 JSON 의 `latex` 를 원본 사진과 대조한다(`label` 이 원문 번호).
-2026-10-25 실측: 스크린샷 3쪽에서 21문제 식 오독 0건, 건너뜀 13건 분류 모두 맞음, 장당 약 $0.0017(3~4초).
+실측(스크린샷 3쪽, 21문제): 3.8 Flash 식 오독 0건·장당 17~41초. 3.1 Flash-Lite 는 장당 3~4초로 빠르고 싸지만 실행마다 결과가 달라 `9z^2`→`z^2` 오독이 1건 나왔다. 건너뜀 13건 분류는 두 모델 모두 맞음.
 
 ## 명세와 다르게 한 곳 / 명세에 없어 정한 곳 (가정)
 
