@@ -31,3 +31,24 @@ def test_ocr_writes_input_json_after_existing_numbers(conn, fake, tmp_path):
 
     assert ocr.run(conn, [str(img)], "m3-poly", log=lambda *_: None) == []   # 이미 있으면 다시 읽지 않음
     assert len(fake.calls) == 1
+
+
+def test_tasks_read_their_own_key_names(monkeypatch):
+    from app import llm
+    monkeypatch.setattr(config, "_ENV", {"VISION_OCR_GEMINI_API_KEY": "ocr", "COACHING_GEMINI_API_KEY": "coach",
+                                         "GEMINI_API_KEY": "base", "ANTHROPIC_API_KEY": "claude"})
+    assert [llm._key(config.task(t)) for t in ("ocr", "coach", "step_help", "report", "judge_generate", "generate")] \
+        == ["ocr", "coach", "coach", "coach", "base", "claude"]
+
+
+def test_key_env_model_overrides_config_model(conn, monkeypatch):
+    from app import llm
+    seen = {}
+    monkeypatch.setattr(config, "_ENV", {"VISION_OCR_GEMINI_API_KEY": "k", "VISION_OCR_GEMINI_API_MODEL": "m-from-env"})
+    monkeypatch.setattr(llm, "_gemini", lambda t, *a: seen.setdefault("model", t["model"]) and ("ok", 1, 1, "STOP"))
+    llm.call(conn, "ocr", "s", "u")
+    assert seen["model"] == "m-from-env"
+    monkeypatch.setattr(config, "_ENV", {"VISION_OCR_GEMINI_API_KEY": "k"})
+    seen.clear()
+    llm.call(conn, "ocr", "s", "u")
+    assert seen["model"] == config.task("ocr")["model"]      # key.env 에 없으면 config.toml 값

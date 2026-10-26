@@ -26,8 +26,8 @@ def main() -> None:
     a = ap.parse_args()
 
     from app import coach, config, db, llm, problems, prompts, taxonomy
-    if not config.env("AI_TUTOR_GEMINI_API_KEY"):
-        sys.exit("AI_TUTOR_GEMINI_API_KEY 가 없어 코칭 평가를 돌릴 수 없다 (.env 확인).")
+    if not config.env("COACHING_GEMINI_API_KEY"):
+        sys.exit("COACHING_GEMINI_API_KEY 가 없어 코칭 평가를 돌릴 수 없다 (.env 확인).")
     conn = db.connect()
     db.init(conn)
     lid = (conn.execute("SELECT id FROM learners ORDER BY id LIMIT 1").fetchone() or {"id": None})["id"]

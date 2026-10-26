@@ -39,8 +39,9 @@ class Result:
     stop_reason: str = ""
 
 
-def _key(provider: str) -> str:
-    return config.env("ANTHROPIC_API_KEY" if provider == "claude" else "AI_TUTOR_GEMINI_API_KEY")
+def _key(t: dict) -> str:
+    """작업의 key_env(config.toml) 가 있으면 그 이름, 없으면 제공자 기본 이름으로 key.env·.env·환경변수에서 읽는다."""
+    return config.env(t.get("key_env") or ("ANTHROPIC_API_KEY" if t["provider"] == "claude" else "GEMINI_API_KEY"))
 
 
 def _claude(t: dict, system: str, user: str, schema: dict | None, timeout: float, key: str, max_tokens: int,
@@ -108,9 +109,9 @@ def call(conn, task: str, system: str, user: str, *, schema: dict | None = None,
     """task 이름으로 config.toml 의 제공자·모델을 골라 호출하고 ai_calls 에 기록한다. images: [(mime, 바이트)]."""
     t = dict(config.task(task))
     provider = t["provider"]
-    if provider == "gemini" and not t.get("model"):   # config.toml 에 model 이 없는 Gemini 작업은 AI_TUTOR_GEMINI_API_MODEL
-        t["model"] = config.env("AI_TUTOR_GEMINI_API_MODEL")
-    key = _key(provider)
+    if t.get("model_env") and config.env(t["model_env"]):   # key.env 의 모델 값이 config.toml 의 model 보다 우선
+        t["model"] = config.env(t["model_env"])
+    key = _key(t)
     if not key:
         return Result(False, fail_reason="no_api_key")
     if not t.get("model"):

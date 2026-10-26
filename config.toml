@@ -37,6 +37,7 @@ t60 = "기본은 되지만 실수가 자주 나온다"
 t0  = "약한 부분이다. 복습이 필요하다"
 
 # 작업별 AI 제공자·모델 (명세 3절). provider: claude | gemini
+# 키 이름: key_env 가 있으면 그 이름, 없으면 ANTHROPIC_API_KEY / GEMINI_API_KEY. model_env 이름의 값이 key.env 에 있으면 model 보다 우선한다.
 [tasks.generate]           # 자료 생성: 힌트·단계·오답 시나리오
 provider = "claude"
 model = "claude-sonnet-5-5"
@@ -59,6 +60,8 @@ prompt = "review_v1"
 
 [tasks.ocr]                # 문제집 사진 → input/ JSON
 provider = "gemini"
+key_env = "VISION_OCR_GEMINI_API_KEY"
+model_env = "VISION_OCR_GEMINI_API_MODEL"   # key.env 에 값이 있으면 아래 model 대신 쓴다
 model = "gemini-3.8-flash"  # 2026-10-26 실측(사진 3장·21문제): 3.8-flash 오독 0, 3.1-flash-lite 는 9z²→z² 1건(실행마다 다름). 장당 17~41초라 코칭 공용 모델과 분리
 max_tokens = 8000
 prompt = "ocr_v1"
@@ -77,17 +80,23 @@ max_tokens = 1000
 prompt = "convert_v1"
 
 [tasks.coach]              # (가) 오답 직후 코칭
-provider = "gemini"       # model 은 key.env 의 AI_TUTOR_GEMINI_API_MODEL (2.5-flash-lite 는 2026-10-25 404)
+provider = "gemini"
+key_env = "COACHING_GEMINI_API_KEY"
+model_env = "COACHING_GEMINI_API_MODEL"   # model 은 key.env 값 (2.5-flash-lite 는 2026-10-25 404)
 max_tokens = 400
 prompt = "coach_v1"
 
 [tasks.step_help]          # (나) 계산단계 추가 설명
-provider = "gemini"       # model 은 key.env 의 AI_TUTOR_GEMINI_API_MODEL
+provider = "gemini"
+key_env = "COACHING_GEMINI_API_KEY"
+model_env = "COACHING_GEMINI_API_MODEL"   # model 은 key.env 값
 max_tokens = 400
 prompt = "step_help_v1"
 
 [tasks.report]             # 주간 보고서 문장 연결
-provider = "gemini"       # model 은 key.env 의 AI_TUTOR_GEMINI_API_MODEL
+provider = "gemini"
+key_env = "COACHING_GEMINI_API_KEY"
+model_env = "COACHING_GEMINI_API_MODEL"   # model 은 key.env 값
 max_tokens = 1200
 prompt = "report_v1"
 

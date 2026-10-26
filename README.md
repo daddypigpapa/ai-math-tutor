@@ -13,7 +13,7 @@
 ```powershell
 cd C:\Users\USER\Claude\ai-math-tutor
 .\scripts\setup.ps1 -Learner "아이이름"     # venv, 패키지, KaTeX, DB, 시작 문제 12개
-notepad .env                                 # ANTHROPIC_API_KEY, AI_TUTOR_GEMINI_API_KEY, AI_TUTOR_GEMINI_API_MODEL, DISCORD_WEBHOOK_URL, PARENT_PIN
+notepad .env                                 # ANTHROPIC_API_KEY, COACHING_GEMINI_API_KEY, COACHING_GEMINI_API_MODEL, VISION_OCR_GEMINI_API_KEY, VISION_OCR_GEMINI_API_MODEL, GEMINI_API_KEY(평가 채점), DISCORD_WEBHOOK_URL, PARENT_PIN
 .\scripts\run_server.ps1                     # http://localhost:8000  (부모 화면: /parent)
 ```
 

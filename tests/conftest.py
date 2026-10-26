@@ -15,7 +15,8 @@ def isolated(tmp_path, monkeypatch):
     monkeypatch.setenv("TUTOR_DB", str(tmp_path / "t.db"))
     monkeypatch.setenv("TUTOR_PROBLEMS", str(tmp_path / "problems"))
     monkeypatch.setenv("TUTOR_INPUT", str(tmp_path / "input"))
-    for k in ("ANTHROPIC_API_KEY", "AI_TUTOR_GEMINI_API_KEY", "AI_TUTOR_GEMINI_API_MODEL","DISCORD_WEBHOOK_URL", "PARENT_PIN"):
+    for k in ("ANTHROPIC_API_KEY", "GEMINI_API_KEY", "COACHING_GEMINI_API_KEY", "COACHING_GEMINI_API_MODEL",
+              "VISION_OCR_GEMINI_API_KEY", "DISCORD_WEBHOOK_URL", "PARENT_PIN"):
         monkeypatch.delenv(k, raising=False)
     monkeypatch.setattr(config, "_ENV", {})   # ~/claude/key.env 의 진짜 키가 테스트에 새지 않게 막는다
     config.reload()
